@@ -2,6 +2,7 @@ package com.finalexam.coinstackgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     Button btn_Exit;
     Button.OnClickListener onClickListener;
 
-    NormalModeFragment normal;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
         btn_Infinite = findViewById(R.id.btn_mode2);// 무한 모드
         btn_Exit = findViewById(R.id.btn_exit); // 나가기
 
-        normal = new NormalModeFragment();
+
         onClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view){
                 switch(view.getId()) {
                     case R.id.btn_mode1:
                         Toast.makeText(getApplicationContext(),"일반 모드" , Toast.LENGTH_SHORT).show();
-                        onFragmentChanged(R.id.btn_mode1);
+                        startIntent(R.id.btn_mode1);
                         break;
                     case R.id.btn_mode2:
                         Toast.makeText(getApplicationContext(),"무한 모드" , Toast.LENGTH_SHORT).show();
@@ -56,10 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onFragmentChanged(int id) { // 프래그먼트 전환 함수
+    public void startIntent(int id) { // 프래그먼트 전환 함수
         switch(id){
             case R.id.btn_mode1:
-                getSupportFragmentManager().beginTransaction().replace(R.id.mainActivity, normal).addToBackStack(null).commit();
+               Intent intent = new Intent(getApplicationContext(), NormalModeAtivity.class);
+               startActivity(intent);
                 break;
         }
     }
