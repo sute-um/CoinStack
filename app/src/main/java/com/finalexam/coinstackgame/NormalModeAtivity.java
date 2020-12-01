@@ -30,6 +30,7 @@ public class NormalModeAtivity extends AppCompatActivity {
     Bitmap bm;
     Matrix m;
 
+    Data data = new Data();
     int width; //디스플레이 가로
     int height; //디스플레이 세로
 
@@ -38,6 +39,9 @@ public class NormalModeAtivity extends AppCompatActivity {
     float x;
     float y;
     int i = 0;
+
+
+    CoinThread coinThread;
 
     Thread t;
     View.OnTouchListener myTouchListener = new View.OnTouchListener() {
@@ -53,7 +57,6 @@ public class NormalModeAtivity extends AppCompatActivity {
                 case MotionEvent.ACTION_MOVE:
                     v.setX(event.getRawX() + x);
                     v.setY(event.getRawY() + y);
-                    Log.d(event.getX()+"", event.getY()+"");
                     break;
 
             }
@@ -118,6 +121,24 @@ public class NormalModeAtivity extends AppCompatActivity {
     }
 
     public void gameStart() {
+        coinThread = new CoinThread();
+        coinThread.start();
+    }
+
+    class CoinThread extends Thread {
+        @Override
+        public void run() {
+            while(!Thread.currentThread().isInterrupted()) {
+                Message msg = handler.obtainMessage();
+                handler.sendMessage(msg);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+
+                }
+            }
+
+        }
 
         //ui를 변경하기 위한 핸들러
         final Handler handler = new Handler() {
@@ -137,28 +158,12 @@ public class NormalModeAtivity extends AppCompatActivity {
                 layout.addView(dropCoins.elementAt(i));
 
                 //만들어진 동전객체를 떨구기 위한 동작
-                new DropThread(dropCoin, width, height,coinWidth, coinHeight);
+                new DropThread(dropCoin, mainCoin, width, height,coinWidth, coinHeight, data);
 
                 i++;
             }
         };
-
-        //동전 생성을 반복하기 위한 타이머루프
-        Timer timer = new Timer(true);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                Message msg = handler.obtainMessage();
-                handler.sendMessage(msg);
-
-            }
-        };
-
-        //1초마다 동전 생성
-        timer.schedule(timerTask, 0, 1000);
-
     }
-
 
 
 
