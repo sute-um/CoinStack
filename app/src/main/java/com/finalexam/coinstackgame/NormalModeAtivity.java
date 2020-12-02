@@ -24,13 +24,13 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 public class NormalModeAtivity extends AppCompatActivity {
-    ImageView mainCoin;
+    /*ImageView mainCoin;
     Vector<ImageView> dropCoins  = new Vector<ImageView>();
     ConstraintLayout layout;
     Bitmap bm;
     Matrix m;
 
-    Data data = new Data();
+    //Data data = new Data();
     int width; //디스플레이 가로
     int height; //디스플레이 세로
 
@@ -62,22 +62,22 @@ public class NormalModeAtivity extends AppCompatActivity {
             }
             return true;
         }
-    };
+    };*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_normal_mode_ativity);
-
+        setContentView(new GameView(this)/*R.layout.activity_normal_mode_ativity*/);
+/*
         layout = findViewById(R.id.activity_normal);
 
         init();
         getDisplaySize();
         gameStart();
-
+*/
 
 
     }
-
+/*
     public void getDisplaySize() {
         //화면의 크기 구하기
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
@@ -158,13 +158,13 @@ public class NormalModeAtivity extends AppCompatActivity {
                 layout.addView(dropCoins.elementAt(i));
 
                 //만들어진 동전객체를 떨구기 위한 동작
-                new DropThread(dropCoin, mainCoin, width, height,coinWidth, coinHeight, data);
+               // new DropThread(dropCoin, mainCoin, width, height,coinWidth, coinHeight, data);
 
                 i++;
             }
         };
     }
-
+*/
 
 
 
