@@ -27,8 +27,7 @@ public class DropThread {
     Data data;
 
     initThread initThread;
-    crashCheckThread crashCheckThread;
-    crashThread crashThread;
+
 
 
 
@@ -43,8 +42,7 @@ public class DropThread {
         data = d;
 
         init();//초기화
-        crashCheck();//충돌 감지
-        crash();
+
     }
 
     //초기화
@@ -58,6 +56,8 @@ public class DropThread {
     }
 
     class initThread extends Thread {
+
+
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
@@ -73,77 +73,6 @@ public class DropThread {
 
         final Handler handler = new Handler() { //ui를 바꾸기 위한 핸들러 설정
             public void handleMessage(Message msg) {
-                coin.setY(coin.getY() + 10);     //동전을 10만큼 아래로 내림
-
-            }
-        };
-
-    }
-
-    //바닥과 충돌 감지
-    public void crashCheck() {
-        crashCheckThread = new crashCheckThread();
-        crashCheckThread.start();
-    }
-
-    class crashCheckThread extends Thread{
-        @Override
-        public void run() {
-            while(!Thread.currentThread().isInterrupted()) {
-                try {
-                    Message msg = checkLocation.obtainMessage();
-                    checkLocation.sendMessage(msg);
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Log.d("crashcheckThread", "interrupted!");
-                }
-
-            }
-        }
-
-        //ui를 변경하기 위한 핸들러
-        final Handler checkLocation = new Handler(){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-
-                if (coin.getY() >= height) { //동전의 위치가 바닥바로위쯤?일때
-                    //coin.setY(height);//화면밖으로 뺌(removeView가 안됨..ㅠ)
-                    initThread.interrupt();  //타이머 정지
-                }
-            }
-        };
-    }
-
-    //메인 코인과 충돌 감지
-    public void crash() {
-        crashThread = new crashThread();
-        crashThread.start();
-
-    }
-
-    class crashThread extends Thread{
-        @Override
-        public void run() {
-            while(!Thread.currentThread().isInterrupted()) {
-
-                    Message msg = check.obtainMessage();
-                    check.sendMessage(msg);
-
-                    if(msg != null){
-
-                    }
-                    try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Log.d("crashThread", "interrupted!");
-                }
-            }
-        }
-
-        //핸들러
-        final Handler check = new Handler(){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
                 float cx = coin.getX(); //코인 왼쪽
                 float cy = coin.getY(); //코인 상단
                 float cw = coin.getWidth() + cx; //코인 오른쪽
@@ -153,10 +82,8 @@ public class DropThread {
                 float mw = maincoin.getWidth()+mx; //메인코인 오른쪽
                 float mh = my + maincoin.getHeight(); //메인코인 바닥
 
-                //충돌 검사
                 if ( (ch < mh && ch> my) && ((cx > mx && cx < mw) || (cw < mw && cw > mx)) ) {
-                    initThread.interrupt();  //동전 움직임 중지
-                    crashCheckThread.interrupt();   //바닥 충돌 스레드 중지
+
                     data.setStackcnt(data.getStackcnt() + 1);
                     Log.d("dataset", data.getStackcnt()+"");
                     coin.setX(cx);
@@ -165,12 +92,19 @@ public class DropThread {
                     stackThread stackThread = new stackThread();
                     stackThread.start();
 
+                    Log.d("충돌","active");
+                    interrupt();
+
                 }
+                else if (coin.getY() >= height) { //동전의 위치가 바닥바로위쯤?일때
+                interrupt();  //스레드 정지
+            }
+               else
+                   coin.setY(coin.getY() + 10);     //동전을 10만큼 아래로 내림
             }
         };
+
     }
-
-
 
     class stackThread extends Thread{
         @Override
@@ -192,7 +126,7 @@ public class DropThread {
             float coinxx = maincoin.getX() - coin.getX();
             @Override
             public void handleMessage(@NonNull Message msg) {
-                crashThread.interrupt();
+                //crashThread.interrupt();
                 coin.setX(maincoin.getX() - (coinxx));
                 coin.setY(maincoin.getY()-(maincoin.getHeight()-35));
 
