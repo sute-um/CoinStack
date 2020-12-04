@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint.Align;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,6 +16,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -47,10 +53,13 @@ public class NormalGameView extends SurfaceView implements Callback {
     float stagecnt;
     int life = 3;
 
+
+    MediaPlayer m;
+
+
     public NormalGameView(Context context) {
         super(context);
         this.context = context;
-
 
         stage = new Stage( this, context );
         stage.fps = 50;
@@ -117,6 +126,7 @@ public class NormalGameView extends SurfaceView implements Callback {
         gt2.interrupt();
         gct.interrupt();
         mt.interrupt();
+        m.release();
     }
 
     public void setCoinLoc() {
@@ -130,7 +140,7 @@ public class NormalGameView extends SurfaceView implements Callback {
         int tempx=0;
         tf.text = "Stage : "+(int)stagecnt+"\nScore : "+monCnt + "점";
 
-        if(Math.random() < stagecnt/3000)
+        if(Math.random() < stagecnt/300)
         {
             mon = new MovieClip( data.getDrawable("dropcoin"), 0.5f, 1 );
             mon.y = 0;
@@ -147,7 +157,7 @@ public class NormalGameView extends SurfaceView implements Callback {
             mon = monArr.get( i );
             speed = monSpeed.get( i );
             mon.y += speed / 2;
-            monSpeed.set( i, (int)(1+stagecnt) );
+            monSpeed.set( i, (int)(10+stagecnt) );
 
             if( cha.hitTestPoint( mon.x, mon.y ) )
             {
@@ -187,6 +197,8 @@ public class NormalGameView extends SurfaceView implements Callback {
 
                                 @Override
                                 public void onNegativeClick() {
+                                    m.stop();
+                                    m.release();
                                     gotomain = true;
                                 }
                             });
@@ -213,37 +225,46 @@ public class NormalGameView extends SurfaceView implements Callback {
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
+
+                                SoundManager.playSound(2,1);
                                 StageClearDialog stageClearDialog = new StageClearDialog(getContext(), new CustumDialogClickListener() {
                                     @Override
                                     public void onPositiveClick() {
                                         data.stagecnt++;
                                         Log.d("check", data.stagecnt+"");
 
+
                                         Intent intent = new Intent(getContext(), NormalModeActivityIntent.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         intent.putExtra("stage",data.stagecnt);
                                         getContext().startActivity(intent);
 
+
                                     }
 
                                     @Override
                                     public void onNegativeClick() {
+                                        m.stop();
+                                        m.release();
                                         gotomain = true;
                                     }
                                 });
 
                                 stageClearDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
                                 stageClearDialog.show();
+
                             }
                         },0);
                     }
 
 
+                    SoundManager.playSound(1,1);
                     stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
                     stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
                     stackCoin.x = cha.x - (cha.x - mon.x);
                     distance.add((mon.x - cha.x));
                     stackArr.add(stackCoin);
+
 
 
                     if (stackArr.size() > 1)
@@ -263,12 +284,13 @@ public class NormalGameView extends SurfaceView implements Callback {
             }
             if( mon.y > stage.stageHeight + mon.height )
             {
+                SoundManager.playSound(0,1);
                 idx = monArr.indexOf( mon );
                 stage.removeChild( mon );
                 monArr.remove( idx );
                 monSpeed.remove( idx );
                 --i;
-                //++monCnt;
+
             }
         }
     }
@@ -295,14 +317,14 @@ class NormalGameCalculateThread extends Thread
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
+
         super.run();
 
         while( !isInterrupted() )
         {
             try
             {
-                sleep( 1);
+                sleep( 10);
                 view.onEnterFrame();
                 if(view.stackCoin != null)
                     view.stacked();

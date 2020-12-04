@@ -3,6 +3,7 @@ package com.finalexam.coinstackgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,12 +17,20 @@ public class MainActivity extends AppCompatActivity {
     Button.OnClickListener onClickListener;
     private long Backbtncnt = 0;
     Data data;
+    MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        m = MediaPlayer.create(this,R.raw.mainmu);
+        m.setLooping(true);
+        m.start();
+
+        SoundManager.getInstance();
+        SoundManager.initSounds(getApplicationContext());
+        SoundManager.loadSounds();
         data = new Data(getApplicationContext());
         init();
         action();
@@ -38,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(System.currentTimeMillis() <= Backbtncnt+2000){
+            m.stop();
+            m.release();
            super.onBackPressed();
         }
 
@@ -69,10 +80,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view){
                 switch(view.getId()) {
                     case R.id.btn_mode1:
+
+                        finishAffinity();
                         Toast.makeText(getApplicationContext(),"일반 모드" , Toast.LENGTH_SHORT).show();
                         startIntent(R.id.btn_mode1);
                         break;
                     case R.id.btn_mode2:
+
+                        finishAffinity();
                         Toast.makeText(getApplicationContext(),"무한 모드" , Toast.LENGTH_SHORT).show();
                         startIntent(R.id.btn_mode2);
                         break;
@@ -89,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startIntent(int id) { // 인텐트
+        m.stop();
+        m.release();
         Intent intent;
         switch(id){
             case R.id.btn_mode1:

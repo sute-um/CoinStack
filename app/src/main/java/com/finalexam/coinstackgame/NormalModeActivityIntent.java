@@ -9,6 +9,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     NormalGameViewIntent v;
     receiveThread receiveThread;
     float stageCnt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

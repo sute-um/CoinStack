@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint.Align;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,6 +13,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -125,6 +128,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         cha.x +=  (touchPoint - cha.x);
     }
 
+
     public void onEnterFrame ()
     {
         int centerDistance = 0; //밑에코인과 위의코인 중심점 거리 비교변수
@@ -215,6 +219,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                SoundManager.playSound(2,1);
                                 StageClearDialog stageClearDialog = new StageClearDialog(getContext(), new CustumDialogClickListener() {
                                     @Override
                                     public void onPositiveClick() {
@@ -240,7 +245,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                         },0);
                     }
 
-
+                    SoundManager.playSound(1,1);
                     stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
                     stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
                     stackCoin.x = cha.x - (cha.x - mon.x);
@@ -248,9 +253,9 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                     stackArr.add(stackCoin);
 
 
+
                     if (stackArr.size() > 1)
                         cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
-                    Log.d("dis", cha.distance + "disArr " + distance.get(stackArr.size() - 1));
 
                     stage.addChild(stackCoin);
 
@@ -265,6 +270,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             }
             if( mon.y > stage.stageHeight + mon.height )
             {
+                SoundManager.playSound(0,1);
                 idx = monArr.indexOf( mon );
                 stage.removeChild( mon );
                 monArr.remove( idx );
