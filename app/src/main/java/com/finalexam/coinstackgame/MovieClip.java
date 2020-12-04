@@ -16,6 +16,7 @@ public class MovieClip implements DisplayObject {
 	public int height;
 	public float alpha;
 	public boolean visible;
+	public int center;
 	Data data;
 	int distance;
 	public float centerX = 0;
@@ -36,6 +37,7 @@ public class MovieClip implements DisplayObject {
 		this.centerY = centerY;
 		distance = 0;
 		transform = new Transform( this );
+
 	}
 
 	public MovieClip ( Drawable drawable, float centerX, float centerY, Data d)
@@ -83,7 +85,7 @@ public class MovieClip implements DisplayObject {
 		
 		boolean checkX = false;
 		boolean checkY = false;
-			if( (transform.left-140) + distance <= x && transform.right + distance >= x ) checkX = true;
+			if( (transform.left-140) + distance <= x && (transform.right+140) + distance >= x ) checkX = true;
 			if( transform.top+data.hitY <= y && transform.bottom >= y ) checkY = true;
 		if( checkX && checkY )
 		{

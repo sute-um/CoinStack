@@ -9,6 +9,7 @@ public class Transform {
 	int right;
 	int top;
 	int bottom;
+	int center;
 	
 	public Transform ( MovieClip mc ) {
 		initTransform( mc );
@@ -20,6 +21,7 @@ public class Transform {
 		right = (int) (mc.x + mc.width * (1-mc.centerX));
 		bottom = (int) (mc.y);
 		top = (int) (mc.y - mc.height);
+
 	}
 	
 	public Rect getRect ()

@@ -2,8 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_normal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".InfinityModeActivity"
-    android:background="#ffffff"/>
+    tools:context=".NormalModeActivity">
+
+</androidx.constraintlayout.widget.ConstraintLayout>

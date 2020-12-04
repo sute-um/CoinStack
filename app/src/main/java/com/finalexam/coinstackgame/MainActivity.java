@@ -3,11 +3,10 @@ package com.finalexam.coinstackgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,14 +14,43 @@ public class MainActivity extends AppCompatActivity {
     Button btn_Infinite;
     Button btn_Exit;
     Button.OnClickListener onClickListener;
-
+    private long Backbtncnt = 0;
+    Data data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        data = new Data(getApplicationContext());
+        init();
+        action();
+        Log.d("oncreate","do");
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if(System.currentTimeMillis() > Backbtncnt + 2000) {
+            Backbtncnt = System.currentTimeMillis();
+            Toast.makeText(this,"한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(System.currentTimeMillis() <= Backbtncnt+2000){
+           super.onBackPressed();
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
         setContentView(R.layout.activity_main);
         init();
         action();
+        Log.d("onresume","do");
     }
 
     public void init() {
@@ -46,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.btn_mode2:
                         Toast.makeText(getApplicationContext(),"무한 모드" , Toast.LENGTH_SHORT).show();
+                        startIntent(R.id.btn_mode2);
                         break;
                     case R.id.btn_exit:
                         Toast.makeText(getApplicationContext(),"나가기" , Toast.LENGTH_SHORT).show();
+                        finishAffinity();
+                        System.runFinalization();
                         break;
                 }
             }
@@ -57,11 +88,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startIntent(int id) { // 프래그먼트 전환 함수
+    public void startIntent(int id) { // 인텐트
+        Intent intent;
         switch(id){
             case R.id.btn_mode1:
-               Intent intent = new Intent(getApplicationContext(), NormalModeAtivity.class);
+                intent = new Intent(getApplicationContext(), NormalModeActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                break;
+            case R.id.btn_mode2:
+                intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
                startActivity(intent);
+                overridePendingTransition(0, 0);
                 break;
         }
     }

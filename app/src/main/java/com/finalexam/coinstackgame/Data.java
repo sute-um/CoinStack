@@ -16,6 +16,7 @@ public class Data {
     static int IMAGE_RES = 0;
 
     int hitY = 20;
+    float stagecnt = 1;
 
     public int getStackcnt () {
         return this.stackcnt;

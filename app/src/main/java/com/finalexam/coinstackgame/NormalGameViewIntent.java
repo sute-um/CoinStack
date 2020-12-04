@@ -1,33 +1,27 @@
 package com.finalexam.coinstackgame;
 
-        import android.content.Context;
-        import android.content.Intent;
-        import android.graphics.Canvas;
-        import android.graphics.Movie;
-        import android.graphics.Paint;
-        import android.graphics.Paint.Align;
-        import android.os.Looper;
-        import android.os.Handler;
-        import android.util.Log;
-        import android.view.MotionEvent;
-        import android.view.SurfaceHolder;
-        import android.view.SurfaceHolder.Callback;
-        import android.view.SurfaceView;
-        import android.view.WindowManager;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint.Align;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceHolder.Callback;
+import android.view.SurfaceView;
+import android.view.WindowManager;
 
-        import androidx.fragment.app.Fragment;
-        import androidx.fragment.app.FragmentManager;
-
-        import java.util.ArrayList;
+import java.util.ArrayList;
 
 
-
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class NormalGameViewIntent extends SurfaceView implements Callback {
 
     Context context;
-    GameThread gt, gt2;
-    GameCalculateThread gct;
-    MakeThread mt;
+    NormalGameThreadIntent gt, gt2;
+    NormalGameCalculateThreadIntent gct;
+    NormalMakeThreadIntent mt;
     SurfaceHolder holder;
 
     Stage stage;
@@ -45,17 +39,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     boolean gotomain = false;
     boolean restart = false;
     boolean running = true;
-
-    float timecnt=1;
-
+    boolean clear = false;
 
     int monCnt;
     int i;
     int touchPoint;
+    float stagecnt;
+    int life = 3;
+    float cntforspeed = 0;
 
-    public GameView(Context context) {
+    public NormalGameViewIntent(Context context,float stagec) {
         super(context);
         this.context = context;
+
 
         stage = new Stage( this, context );
         stage.fps = 50;
@@ -71,12 +67,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         data.addImageResource("stackCoin", R.drawable.coins);
 
         monCnt = 0;
+        this.stagecnt = stagec;
+        cntforspeed = stagecnt;
 
         tf = new TextField( 0.5f, 0.5f );
         tf.x = stage.stageWidth / 2;
         tf.y = 200;
         tf.textSize = 60;
-        tf.textAlign = Paint.Align.CENTER;
+        tf.textAlign = Align.CENTER;
         tf.antiAlias = true;
         stage.addChild( tf );
 
@@ -87,10 +85,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         holder = getHolder();
         holder.addCallback( this );
-        gt = new GameThread( this, stage, holder, running );
-        gt2 = new GameThread( this, stage, holder, running );
-        gct = new GameCalculateThread( this, stage, running, timecnt );
-        mt = new MakeThread(this, running);
+        gt = new NormalGameThreadIntent( this, stage, holder, running );
+        gt2 = new NormalGameThreadIntent( this, stage, holder, running );
+        gct = new NormalGameCalculateThreadIntent( this, stage, running );
+        mt = new NormalMakeThreadIntent(this, running);
     }
 
 
@@ -132,9 +130,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int centerDistance = 0; //밑에코인과 위의코인 중심점 거리 비교변수
         int speed, idx;
         int tempx=0;
-        tf.text = "Score : "+monCnt + "점";
+        tf.text = "Stage : "+(int)stagecnt+"\nScore : "+monCnt + "점";
 
-        if(Math.random() < timecnt/1000)
+        if(Math.random() < cntforspeed/300)
         {
             mon = new MovieClip( data.getDrawable("dropcoin"), 0.5f, 1 );
             mon.y = 0;
@@ -151,7 +149,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mon = monArr.get( i );
             speed = monSpeed.get( i );
             mon.y += speed / 2;
-            monSpeed.set( i, 20 );
+            monSpeed.set( i, (int)(10+cntforspeed) );
 
             if( cha.hitTestPoint( mon.x, mon.y ) )
             {
@@ -200,6 +198,48 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     },0);
                 }
                 else {
+                    if(stackArr.size() > 1){
+
+                        cha.x = tempx;
+                        endFlag = true;
+
+
+                        gt.interrupt();
+                        gt2.interrupt();
+                        gct.interrupt();
+                        mt.interrupt();
+
+
+
+                        final Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                StageClearDialog stageClearDialog = new StageClearDialog(getContext(), new CustumDialogClickListener() {
+                                    @Override
+                                    public void onPositiveClick() {
+                                        stagecnt++;
+                                        Log.d("check", stagecnt+"");
+
+                                        Intent intent = new Intent(getContext(), NormalModeActivityIntent.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        intent.putExtra("stage",stagecnt);
+                                        getContext().startActivity(intent);
+
+                                    }
+
+                                    @Override
+                                    public void onNegativeClick() {
+                                        gotomain = true;
+                                    }
+                                });
+
+                                stageClearDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
+                                stageClearDialog.show();
+                            }
+                        },0);
+                    }
+
 
                     stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
                     stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
@@ -243,20 +283,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 }
 
 
-
-class GameCalculateThread extends Thread
+class NormalGameCalculateThreadIntent extends Thread
 {
-    GameView view;
+    NormalGameViewIntent view;
     Stage stage;
     boolean running;
-     float stageCnt;
-    float time;
-    public GameCalculateThread ( GameView view, Stage stage, boolean running, float stageCnt )
+    public NormalGameCalculateThreadIntent ( NormalGameViewIntent view, Stage stage, boolean running )
     {
         this.view = view;
         this.stage = stage;
         this.running = running;
-        this.stageCnt = stageCnt;
     }
 
     @Override
@@ -272,10 +308,6 @@ class GameCalculateThread extends Thread
                 view.onEnterFrame();
                 if(view.stackCoin != null)
                     view.stacked();
-
-                time +=10;
-                if(time >= 5000)
-                    view.timecnt+=0.01;
             }
             catch ( Exception e )
             {
@@ -285,10 +317,10 @@ class GameCalculateThread extends Thread
     }
 }
 
-class MakeThread extends Thread{
-    GameView view;
+class NormalMakeThreadIntent extends Thread{
+    NormalGameViewIntent view;
     boolean running;
-    public MakeThread(GameView v, boolean running) {
+    public NormalMakeThreadIntent(NormalGameViewIntent v, boolean running) {
         this.view = v;
         this.running = running;
     }
@@ -300,21 +332,21 @@ class MakeThread extends Thread{
                 view.setCoinLoc();
                 sleep(1);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+               // e.printStackTrace();
             }
         }
     }
 }
 
-class GameThread extends Thread
+class NormalGameThreadIntent extends Thread
 {
     SurfaceHolder holder;
     Stage stage;
     Canvas canvas;
-    GameView view;
+    NormalGameViewIntent view;
     boolean running;
 
-    public GameThread ( GameView view, Stage stage, SurfaceHolder holder, boolean running )
+    public NormalGameThreadIntent ( NormalGameViewIntent view, Stage stage, SurfaceHolder holder, boolean running )
     {
         this.view = view;
         this.holder = holder;
@@ -339,9 +371,10 @@ class GameThread extends Thread
             {
                 e.printStackTrace();
             }
-            finally {
+            finally
+            {
                 if(canvas != null)
-                    holder.unlockCanvasAndPost(canvas);
+                holder.unlockCanvasAndPost( canvas );
             }
         }
     }
