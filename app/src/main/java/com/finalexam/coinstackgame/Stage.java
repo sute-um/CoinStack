@@ -1,7 +1,12 @@
 package com.finalexam.coinstackgame;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -13,6 +18,8 @@ public class Stage {
 	Context context;
 	
 	public int fps;
+
+	Resources res;
 	
 	int i;
 	int bgcRed = 0xFF;
@@ -24,12 +31,14 @@ public class Stage {
 	public float stageAlpha;
 	public int stageWidth;
 	public int stageHeight;
+
 	
 	public Stage ( View view, Context context )
 	{
+		setBackground();
 		this.view = view;
 		this.context = context;
-		
+		res = context.getResources();
 		fps = 30;
 		stageAlpha = 1;
 		WindowManager wm = (WindowManager) context.getSystemService( Context.WINDOW_SERVICE );
@@ -38,15 +47,15 @@ public class Stage {
 		doArr = new ArrayList<DisplayObject>();
 	}
 	
-	public void render ( Canvas canvas )
-	{
-		canvas.drawRGB( bgcRed, bgcGreen, bgcBlue );
-		for( i = 0; i < doArr.size(); ++ i )
-		{
-			displayObject = doArr.get( i );
-			displayObject.render( canvas );
+	public void render ( Canvas canvas, Bitmap scaleBitmap, Paint p ) {
+		if (canvas != null) {
+			canvas.drawBitmap(scaleBitmap, 0, 0, p);
+		for (i = 0; i < doArr.size(); ++i) {
+			displayObject = doArr.get(i);
+			displayObject.render(canvas);
 		}
 		displayObject = null;
+	}
 	}
 	
 	public void setBackgroundColor ( int color )
@@ -59,6 +68,11 @@ public class Stage {
 	public int getBackgroundColor ( )
 	{
 		return bgcRed * 0x10000 + bgcGreen * 0x100 + bgcBlue;
+	}
+
+	public void setBackground() {
+
+
 	}
 	
 	public void addChild ( DisplayObject displayObject )

@@ -3,23 +3,18 @@ package com.finalexam.coinstackgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 
 public class NormalModeActivity extends AppCompatActivity {
     NormalGameView v;
     receiveThread receiveThread;
-    MediaPlayer m;
+    //MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
-        m.setLooping(true);
-        m.start();
-
-
+        startService(new Intent(getApplicationContext(), StageMusicService.class));
         v = new NormalGameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -35,6 +30,15 @@ public class NormalModeActivity extends AppCompatActivity {
         receiveThread.start();
     }
 
+
+    @Override
+    public void onBackPressed() {
+        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+        super.onBackPressed();
+        finishAffinity();
+        System.exit(0);
+    }
+
     class receiveThread extends  Thread {
         @Override
         public void run() {
@@ -42,9 +46,8 @@ public class NormalModeActivity extends AppCompatActivity {
                 try {
                     sleep(100);
                     if (v.gotomain == true) {
-                        m.stop();
-                        m.release();
-                        finish();
+                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+                        finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -52,9 +55,7 @@ public class NormalModeActivity extends AppCompatActivity {
                     }
 
                     if(v.restart == true){
-                        m.stop();
-                        m.release();
-                        finish();
+                        finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), NormalModeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -65,4 +66,5 @@ public class NormalModeActivity extends AppCompatActivity {
             }
         }
     }
+
 }

@@ -2,7 +2,12 @@ package com.finalexam.coinstackgame;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Movie;
+import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,15 +38,20 @@ public class NormalGameView extends SurfaceView implements Callback {
     Stage stage;
     Data data;
     ArrayList<MovieClip> monArr;
+    ArrayList<MovieClip> dieArr;
+    ArrayList<MovieClip> lifeArr;
     ArrayList<Integer> monSpeed;
+    ArrayList<Integer> dieSpeed;
+    ArrayList<Integer> lifeSpeed;
     MovieClip mon;
     MovieClip cha;
+    MovieClip die;
+    MovieClip lifec;
     ArrayList<MovieClip> stackArr;
     ArrayList<Integer> distance;
     MovieClip stackCoin;
     TextField tf;
 
-    boolean endFlag = false;
     boolean gotomain = false;
     boolean restart = false;
     boolean running = true;
@@ -49,12 +59,12 @@ public class NormalGameView extends SurfaceView implements Callback {
 
     int monCnt;
     int i;
-    int touchPoint;
+    int touchPointX;
+    int touchPointY;
     float stagecnt;
+    float clearTime;
     int life = 3;
 
-
-    MediaPlayer m;
 
 
     public NormalGameView(Context context) {
@@ -66,13 +76,19 @@ public class NormalGameView extends SurfaceView implements Callback {
         stage.stageAlpha = 0.8f;
         monArr = new ArrayList<MovieClip>();
         monSpeed = new ArrayList<Integer>();
+        dieSpeed = new ArrayList<Integer>();
+        lifeSpeed = new ArrayList<Integer>();
         stackArr = new ArrayList<MovieClip>();
         distance = new ArrayList<Integer>();
+        dieArr = new ArrayList<MovieClip>();
+        lifeArr = new ArrayList<MovieClip>();
 
         data = new Data( context );
-        data.addImageResource( "maincoin", R.drawable.coins );
-        data.addImageResource( "dropcoin", R.drawable.coins );
-        data.addImageResource("stackCoin", R.drawable.coins);
+        data.addImageResource( "maincoin", R.drawable.coin );
+        data.addImageResource( "dropcoin", R.drawable.coin );
+        data.addImageResource("stackCoin", R.drawable.coin);
+        data.addImageResource("dieCoin", R.drawable.diecoin);
+        data.addImageResource("lifecoin",R.drawable.lifecoin);
 
         monCnt = 0;
         stagecnt = data.stagecnt;
@@ -86,8 +102,9 @@ public class NormalGameView extends SurfaceView implements Callback {
         stage.addChild( tf );
 
         cha = new MovieClip( data.getDrawable("maincoin"), 0.5f, 1f, data );
-        cha.y = stage.stageHeight - 80;
-        touchPoint = cha.x = stage.stageWidth / 2;
+        cha.y = stage.stageHeight - 90;
+        touchPointX = cha.x = stage.stageWidth / 2;
+        touchPointY = cha.y ;
         stage.addChild( cha );
 
         holder = getHolder();
@@ -96,6 +113,8 @@ public class NormalGameView extends SurfaceView implements Callback {
         gt2 = new NormalGameThread( this, stage, holder, running );
         gct = new NormalGameCalculateThread( this, stage, running );
         mt = new NormalMakeThread(this, running);
+
+
     }
 
 
@@ -104,7 +123,8 @@ public class NormalGameView extends SurfaceView implements Callback {
         switch( event.getAction() )
         {
             case MotionEvent.ACTION_MOVE:
-                touchPoint = (int)event.getX();
+                touchPointX = (int)event.getX();
+                touchPointY = (int)event.getY();
                 break;
         }
         return true;
@@ -119,6 +139,7 @@ public class NormalGameView extends SurfaceView implements Callback {
         gt2.start();
         gct.start();
         mt.start();
+
     }
 
     public void surfaceDestroyed(SurfaceHolder arg0) {
@@ -126,11 +147,132 @@ public class NormalGameView extends SurfaceView implements Callback {
         gt2.interrupt();
         gct.interrupt();
         mt.interrupt();
-        m.release();
+
     }
 
     public void setCoinLoc() {
-        cha.x +=  (touchPoint - cha.x);
+        cha.x +=  (touchPointX - cha.x);
+        cha.y += (touchPointY - cha.y);
+    }
+
+    public void lifecoin() {
+        int speed,idx;
+        if(Math.random() < stagecnt/800){
+            lifec = new MovieClip(data.getDrawable("lifecoin"),0.5f,1);
+            lifec.y = 0;
+            lifec.x = (int)(stage.stageWidth * Math.random());
+            stage.addChild(lifec);
+            lifeArr.add(lifec);
+            lifeSpeed.add(0);
+            lifec = null;
+        }
+
+        for(i = 0; i< lifeArr.size(); ++i){
+            lifec = lifeArr.get(i);
+            speed = lifeSpeed.get(i);
+            lifec.y += speed/2;
+            lifeSpeed.set(i, (int)(10+stagecnt));
+
+            if( cha.anotherHitTestPoint( lifec.x, lifec.y ) ){
+
+                idx = lifeArr.indexOf(lifec);
+                stage.removeChild(lifec);
+                lifeArr.remove(idx);
+                lifeSpeed.remove(idx);
+                life++;
+            }
+
+            if( (lifec.y > stage.stageHeight + lifec.height)) //바닥에 닿았을때
+            {
+                SoundManager.playSound(0,1);
+                    idx = lifeArr.indexOf(lifec);
+                    stage.removeChild(lifec);
+                    lifeArr.remove(idx);
+                    lifeSpeed.remove(idx);
+                    --i;
+            }
+        }
+
+    }
+
+    public void diecoin() {
+        int speed,idx;
+        if(Math.random() < stagecnt/600){
+            die = new MovieClip(data.getDrawable("dieCoin"),0.5f,1);
+            die.y = 0;
+            die.x = (int)(stage.stageWidth * Math.random());
+            stage.addChild(die);
+            dieArr.add(die);
+            dieSpeed.add(0);
+            die = null;
+        }
+
+        for(i = 0; i< dieArr.size(); ++i){
+            die = dieArr.get(i);
+            speed = dieSpeed.get(i);
+            die.y += speed/2;
+            dieSpeed.set(i, (int)(10+stagecnt));
+
+            if( cha.anotherHitTestPoint( die.x, die.y ) ){
+                idx = dieArr.indexOf(die);
+                stage.removeChild(die);
+                dieArr.remove(idx);
+                dieSpeed.remove(idx);
+
+                if(life<1){
+                    gt.interrupt();
+                    gt2.interrupt();
+                    gct.interrupt();
+                    mt.interrupt();
+
+                    Handler mHandler = new Handler(Looper.getMainLooper());
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Context c = getContext();
+                            c.stopService(new Intent(getContext(), StageMusicService.class));
+                            SoundManager.playSound(3, 1);
+                            ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
+                                @Override
+                                public void onPositiveClick() {
+                                    data.stagecnt = 1;
+                                    restart = true;
+                                }
+
+                                @Override
+                                public void onNegativeClick() {
+
+                                    gotomain = true;
+                                }
+                            });
+
+                            resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                            resultDialog.show();
+                            String time = String.format("%.2f",clearTime);
+                            resultDialog.score.setText((int)stagecnt+"스테이지 "+time+"초");
+                        }
+                    }, 0);
+                }else {
+                    idx = dieArr.indexOf(die);
+                    stage.removeChild(die);
+                    dieArr.remove(idx);
+                    dieSpeed.remove(idx);
+                    --i;
+                    life--;
+                }
+            }
+
+            if( (die.y > stage.stageHeight + die.height)) //바닥에 닿았을때
+            {
+                SoundManager.playSound(0,1);
+                    idx = dieArr.indexOf(die);
+                    stage.removeChild(die);
+                    dieArr.remove(idx);
+                    dieSpeed.remove(idx);
+                    --i;
+            }
+        }
+
     }
 
     public void onEnterFrame ()
@@ -138,7 +280,8 @@ public class NormalGameView extends SurfaceView implements Callback {
         int centerDistance = 0; //밑에코인과 위의코인 중심점 거리 비교변수
         int speed, idx;
         int tempx=0;
-        tf.text = "Stage : "+(int)stagecnt+"\nScore : "+monCnt + "점";
+        String time = String.format("%.2f",clearTime);
+        tf.text = "Stage : "+(int)stagecnt+" "+time + "초 Life : " + life+"개";
 
         if(Math.random() < stagecnt/300)
         {
@@ -162,32 +305,25 @@ public class NormalGameView extends SurfaceView implements Callback {
             if( cha.hitTestPoint( mon.x, mon.y ) )
             {
 
-                if((cha.x + (cha.getIntrinsicWidth()/2)) - (mon.x + (mon.getIntrinsicWidth()/2)) > 0) { //왼쪽
-                    centerDistance = (cha.x + (cha.getIntrinsicWidth() / 2)) - (mon.x + (mon.getIntrinsicWidth() / 2));
-                    tempx = cha.x;
-                }
+                centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth()/2)) - (mon.x + (mon.getIntrinsicWidth()/2)));
+                Log.d("check",centerDistance+"");
 
-                else if((cha.x + (cha.getIntrinsicWidth()/2)) - ((mon.x + (mon.getIntrinsicWidth()/2))) < 0) { //오른쪽
-                    centerDistance = (mon.x + (mon.getIntrinsicWidth() / 2)) -(cha.x + (cha.getIntrinsicWidth() / 2)) ;
-                    tempx = cha.x;
-                }
-
-
-                if(centerDistance > cha.getIntrinsicWidth()/2){
-
+                if(centerDistance > cha.getIntrinsicWidth()/2){ //중심에 어긋날 때
                     cha.x = tempx;
-                    endFlag = true;
-
 
                     gt.interrupt();
                     gt2.interrupt();
                     gct.interrupt();
                     mt.interrupt();
 
+
                     Handler mHandler = new Handler(Looper.getMainLooper());
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            Context c = getContext();
+                            c.stopService(new Intent(getContext(), StageMusicService.class));
+                            SoundManager.playSound(3, 1);
                             ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
                                 @Override
                                 public void onPositiveClick() {
@@ -197,29 +333,25 @@ public class NormalGameView extends SurfaceView implements Callback {
 
                                 @Override
                                 public void onNegativeClick() {
-                                    m.stop();
-                                    m.release();
                                     gotomain = true;
                                 }
                             });
 
-                            resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
+                            resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
                             resultDialog.show();
+                            String time = String.format("%.2f",clearTime);
+                            resultDialog.score.setText((int)stagecnt+"스테이지 "+time+"초");
                         }
-                    },0);
+                        }, 0);
                 }
                 else {
                     if(stackArr.size() > 1){
 
                         cha.x = tempx;
-                        endFlag = true;
-
                         gt.interrupt();
                         gt2.interrupt();
                         gct.interrupt();
                         mt.interrupt();
-
-
 
                         final Handler handler = new Handler(Looper.getMainLooper());
                         handler.postDelayed(new Runnable() {
@@ -227,31 +359,30 @@ public class NormalGameView extends SurfaceView implements Callback {
                             public void run() {
 
                                 SoundManager.playSound(2,1);
-                                StageClearDialog stageClearDialog = new StageClearDialog(getContext(), new CustumDialogClickListener() {
+                                final StageClearDialog stageClearDialog = new StageClearDialog(getContext(), new CustumDialogClickListener() {
                                     @Override
                                     public void onPositiveClick() {
                                         data.stagecnt++;
                                         Log.d("check", data.stagecnt+"");
-
 
                                         Intent intent = new Intent(getContext(), NormalModeActivityIntent.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         intent.putExtra("stage",data.stagecnt);
                                         getContext().startActivity(intent);
 
-
                                     }
 
                                     @Override
                                     public void onNegativeClick() {
-                                        m.stop();
-                                        m.release();
+
                                         gotomain = true;
                                     }
                                 });
 
                                 stageClearDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
                                 stageClearDialog.show();
+                                String time = String.format("%.2f",clearTime);
+                                stageClearDialog.clearTimeText.setText(time+"초");
 
                             }
                         },0);
@@ -260,16 +391,13 @@ public class NormalGameView extends SurfaceView implements Callback {
 
                     SoundManager.playSound(1,1);
                     stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
-                    stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
+                    stackCoin.y = (cha.y - cha.getIntrinsicHeight()) + data.hitY;
                     stackCoin.x = cha.x - (cha.x - mon.x);
                     distance.add((mon.x - cha.x));
                     stackArr.add(stackCoin);
 
-
-
                     if (stackArr.size() > 1)
                         cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
-                    Log.d("dis", cha.distance + "disArr " + distance.get(stackArr.size() - 1));
 
                     stage.addChild(stackCoin);
 
@@ -282,22 +410,60 @@ public class NormalGameView extends SurfaceView implements Callback {
                     ++monCnt;
                 }
             }
-            if( mon.y > stage.stageHeight + mon.height )
+            if( mon.y > stage.stageHeight + mon.height ) //바닥에 닿았을때
             {
                 SoundManager.playSound(0,1);
-                idx = monArr.indexOf( mon );
-                stage.removeChild( mon );
-                monArr.remove( idx );
-                monSpeed.remove( idx );
-                --i;
 
+                if(life < 2){
+                    gt.interrupt();
+                    gt2.interrupt();
+                    gct.interrupt();
+                    mt.interrupt();
+
+                    Handler mHandler = new Handler(Looper.getMainLooper());
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Context c = getContext();
+                            c.stopService(new Intent(getContext(), StageMusicService.class));
+                            SoundManager.playSound(3, 1);
+                            ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
+                                @Override
+                                public void onPositiveClick() {
+                                    data.stagecnt = 1;
+                                    restart = true;
+                                }
+
+                                @Override
+                                public void onNegativeClick() {
+
+                                    gotomain = true;
+                                }
+                            });
+
+                            resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                            resultDialog.show();
+                            String time = String.format("%.2f",clearTime);
+                            resultDialog.score.setText((int)stagecnt+"스테이지 "+time+"초");
+                        }
+                    }, 0);
+                }
+                else {
+
+                    life--;
+                    idx = monArr.indexOf(mon);
+                    stage.removeChild(mon);
+                    monArr.remove(idx);
+                    monSpeed.remove(idx);
+                    --i;
+                }
             }
         }
     }
     public void stacked() {
         for(int i = 0; i < stackArr.size(); i++){
             stackArr.get(i).x = cha.x+ (distance.get(i));
-
+            stackArr.get(i).y = cha.y-(cha.height/8)-((i+1)*(cha.height/2));
         }
     }
 }
@@ -324,8 +490,11 @@ class NormalGameCalculateThread extends Thread
         {
             try
             {
+                view.clearTime +=0.01;
                 sleep( 10);
                 view.onEnterFrame();
+                view.diecoin();
+                view.lifecoin();
                 if(view.stackCoin != null)
                     view.stacked();
             }
@@ -353,12 +522,12 @@ class NormalMakeThread extends Thread{
                 sleep(1);
                 view.setCoinLoc();
 
-            } catch (InterruptedException e) {
-                //e.printStackTrace();
-            }
+            } catch (InterruptedException e) { }
         }
     }
 }
+
+
 
 class NormalGameThread extends Thread
 {
@@ -380,13 +549,19 @@ class NormalGameThread extends Thread
     public void run() {
         super.run();
 
+        Paint p = new android.graphics.Paint();
+        p.setColor(Color.RED);
+
+        Bitmap bg1 = BitmapFactory.decodeResource(view.getResources(), R.drawable.infback1);
+        Bitmap scaleBitmap = Bitmap.createScaledBitmap(bg1,view.stage.stageWidth, view.stage.stageHeight, false);
+
         while( !isInterrupted() )
         {
             canvas = holder.lockCanvas();
             try
             {
                 synchronized ( holder ) {
-                    stage.render( canvas );
+                    stage.render( canvas, scaleBitmap , p );
                 }
             }
             catch( Exception e )
@@ -400,4 +575,6 @@ class NormalGameThread extends Thread
             }
         }
     }
+
+
 }

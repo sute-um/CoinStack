@@ -1,8 +1,12 @@
 package com.finalexam.coinstackgame;
 
+        import android.app.Activity;
         import android.content.Context;
         import android.content.Intent;
+        import android.graphics.Bitmap;
+        import android.graphics.BitmapFactory;
         import android.graphics.Canvas;
+        import android.graphics.Color;
         import android.graphics.Movie;
         import android.graphics.Paint;
         import android.graphics.Paint.Align;
@@ -14,7 +18,6 @@ package com.finalexam.coinstackgame;
         import android.view.SurfaceHolder.Callback;
         import android.view.SurfaceView;
         import android.view.WindowManager;
-
         import androidx.fragment.app.Fragment;
         import androidx.fragment.app.FragmentManager;
 
@@ -30,6 +33,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     MakeThread mt;
     SurfaceHolder holder;
 
+
     Stage stage;
     Data data;
     ArrayList<MovieClip> monArr;
@@ -40,6 +44,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     ArrayList<Integer> distance;
     MovieClip stackCoin;
     TextField tf;
+    Bitmap bg;
 
     boolean endFlag = false;
     boolean gotomain = false;
@@ -47,15 +52,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     boolean running = true;
 
     float timecnt=1;
+    float clearTime;
 
 
     int monCnt;
     int i;
     int touchPoint;
+    int stageCnt = 1;
 
     public GameView(Context context) {
         super(context);
         this.context = context;
+
+        changeBackground();
 
         stage = new Stage( this, context );
         stage.fps = 50;
@@ -66,9 +75,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         distance = new ArrayList<Integer>();
 
         data = new Data( context );
-        data.addImageResource( "maincoin", R.drawable.coins );
-        data.addImageResource( "dropcoin", R.drawable.coins );
-        data.addImageResource("stackCoin", R.drawable.coins);
+        data.addImageResource( "maincoin", R.drawable.coin );
+        data.addImageResource( "dropcoin", R.drawable.coin );
+        data.addImageResource("stackCoin", R.drawable.coin);
 
         monCnt = 0;
 
@@ -91,6 +100,30 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         gt2 = new GameThread( this, stage, holder, running );
         gct = new GameCalculateThread( this, stage, running, timecnt );
         mt = new MakeThread(this, running);
+    }
+
+    public void changeBackground() {
+        if(stageCnt > 4){
+            bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback5);
+        }
+
+        switch (stageCnt) {
+            case 1:
+                bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback1);
+                break;
+            case 2:
+                bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback2);
+                break;
+            case 3:
+                bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback3);
+                break;
+            case 4:
+                bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback4);
+                break;
+            default:
+                bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback5);
+                break;
+        }
     }
 
 
@@ -134,7 +167,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int tempx=0;
         tf.text = "Score : "+monCnt + "점";
 
-        if(Math.random() < timecnt/1000)
+        if(Math.random() < timecnt/2000)
         {
             mon = new MovieClip( data.getDrawable("dropcoin"), 0.5f, 1 );
             mon.y = 0;
@@ -146,98 +179,104 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         }
 
-        for( i = 0; i < monArr.size(); ++ i )
-        {
-            mon = monArr.get( i );
-            speed = monSpeed.get( i );
+        for( i = 0; i < monArr.size(); ++ i ) {
+            mon = monArr.get(i);
+            speed = monSpeed.get(i);
             mon.y += speed / 2;
-            monSpeed.set( i, 20 );
+            monSpeed.set(i, 20);
 
-            if( cha.hitTestPoint( mon.x, mon.y ) )
-            {
+            if (cha.hitTestPoint(mon.x, mon.y)) {
 
-                if((cha.x + (cha.getIntrinsicWidth()/2)) - (mon.x + (mon.getIntrinsicWidth()/2)) > 0) { //왼쪽
-                    centerDistance = (cha.x + (cha.getIntrinsicWidth() / 2)) - (mon.x + (mon.getIntrinsicWidth() / 2));
-                    tempx = cha.x;
+                if (cha.y < stage.stageHeight) {
+                    if (mon.y <= 800) {
+                        cha.y += 600;
+                        stageCnt += 1;
+                        changeBackground();
+                    }
+                } else {
+                    if (mon.y <= 800) {
+                        cha.y += 800;
+                        stageCnt += 1;
+                        changeBackground();
+                    }
                 }
 
-                else if((cha.x + (cha.getIntrinsicWidth()/2)) - ((mon.x + (mon.getIntrinsicWidth()/2))) < 0) { //오른쪽
-                    centerDistance = (mon.x + (mon.getIntrinsicWidth() / 2)) -(cha.x + (cha.getIntrinsicWidth() / 2)) ;
-                    tempx = cha.x;
-                }
+                    centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth()/ 2)) - (mon.x + (mon.getIntrinsicWidth()/ 2)));
 
 
-                if(centerDistance > cha.getIntrinsicWidth()/2){
+                    if (centerDistance > (cha.getIntrinsicWidth()) / 2) {
+                        cha.x = tempx;
+                        endFlag = true;
+                        gt.interrupt();
+                        gt2.interrupt();
+                        gct.interrupt();
+                        mt.interrupt();
 
-                    cha.x = tempx;
-                    endFlag = true;
+                        Handler mHandler = new Handler(Looper.getMainLooper());
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Context c = getContext();
+                                c.stopService(new Intent(getContext(), StageMusicService.class));
+                                SoundManager.playSound(3, 1);
 
+                                    ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
+                                        @Override
+                                        public void onPositiveClick() {
+                                            restart = true;
+                                        }
 
-                    gt.interrupt();
-                    gt2.interrupt();
-                    gct.interrupt();
-                    mt.interrupt();
-
-                    Handler mHandler = new Handler(Looper.getMainLooper());
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
-                                @Override
-                                public void onPositiveClick() {
-                                    restart = true;
+                                        @Override
+                                        public void onNegativeClick() {
+                                            gotomain = true;
+                                        }
+                                    });
+                                    if (!((Activity)context).isFinishing()) {
+                                    resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                                    resultDialog.show();
+                                        String time = String.format("%.2f",clearTime);
+                                        resultDialog.score.setText(time+"초");
                                 }
+                            }
+                        }, 0);
+                    } else {
 
-                                @Override
-                                public void onNegativeClick() {
-                                    gotomain = true;
-                                }
-                            });
+                        SoundManager.playSound(1,1);
+                        stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
+                        stackCoin.y = (cha.y - 20) + data.hitY;
+                        stackCoin.x = cha.x - (cha.x - mon.x);
+                        distance.add((mon.x - cha.x));
+                        stackArr.add(stackCoin);
 
-                            resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
-                            resultDialog.show();
-                        }
-                    },0);
+
+                        if (stackArr.size() > 1)
+                            cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
+
+                        stage.addChild(stackCoin);
+
+                        idx = monArr.indexOf(mon);
+                        stage.removeChild(mon);
+                        monArr.remove(idx);
+                        monSpeed.remove(idx);
+
+                        --i;
+                        ++monCnt;
+                    }
                 }
-                else {
-
-                    stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
-                    stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
-                    stackCoin.x = cha.x - (cha.x - mon.x);
-                    distance.add((mon.x - cha.x));
-                    stackArr.add(stackCoin);
-
-
-                    if (stackArr.size() > 1)
-                        cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
-                    Log.d("dis", cha.distance + "disArr " + distance.get(stackArr.size() - 1));
-
-                    stage.addChild(stackCoin);
-
+                if (mon.y > stage.stageHeight + mon.height) {
+                    SoundManager.playSound(0,1);
                     idx = monArr.indexOf(mon);
                     stage.removeChild(mon);
                     monArr.remove(idx);
                     monSpeed.remove(idx);
-
                     --i;
-                    ++monCnt;
                 }
             }
-            if( mon.y > stage.stageHeight + mon.height )
-            {
-                idx = monArr.indexOf( mon );
-                stage.removeChild( mon );
-                monArr.remove( idx );
-                monSpeed.remove( idx );
-                --i;
-                //++monCnt;
-            }
-        }
     }
     public void stacked() {
         for(int i = 0; i < stackArr.size(); i++){
             stackArr.get(i).x = cha.x+ (distance.get(i));
-
+            stackArr.get(i).y = cha.y-(cha.height/8)-((i+1)*(cha.height/2));
         }
     }
 }
@@ -268,6 +307,7 @@ class GameCalculateThread extends Thread
         {
             try
             {
+                view.clearTime += 0.01;
                 sleep( 10);
                 view.onEnterFrame();
                 if(view.stackCoin != null)
@@ -297,8 +337,9 @@ class MakeThread extends Thread{
     public void run() {
         while(!isInterrupted()){
             try {
-                view.setCoinLoc();
                 sleep(1);
+                view.setCoinLoc();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -326,13 +367,19 @@ class GameThread extends Thread
     public void run() {
         super.run();
 
+        Paint p = new android.graphics.Paint();
+        p.setColor(Color.RED);
+
+
+
         while( !isInterrupted() )
         {
+            Bitmap scaleBitmap = Bitmap.createScaledBitmap(view.bg, view.stage.stageWidth, view.stage.stageHeight, false);
             canvas = holder.lockCanvas();
             try
             {
                 synchronized ( holder ) {
-                    stage.render( canvas );
+                    stage.render( canvas, scaleBitmap , p);
                 }
             }
             catch( Exception e )

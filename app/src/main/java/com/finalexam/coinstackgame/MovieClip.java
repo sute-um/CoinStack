@@ -85,18 +85,35 @@ public class MovieClip implements DisplayObject {
 		
 		boolean checkX = false;
 		boolean checkY = false;
-			if( (transform.left-140) + distance <= x && (transform.right+140) + distance >= x ) checkX = true;
+			if( (transform.left-(width/2)) + distance <= x && (transform.right+(width/2)) + distance >= x ) checkX = true;
 			if( transform.top+data.hitY <= y && transform.bottom >= y ) checkY = true;
 		if( checkX && checkY )
 		{
-			data.setHitY(70);
+			data.setHitY(transform.getHeight()/2);
 			return true;
 		}
 		return false;
 	}
-	
+
+	public boolean anotherHitTestPoint ( int x, int y )
+	{
+
+		transform.initTransform( this );
+
+		boolean checkX = false;
+		boolean checkY = false;
+		if( (transform.left-(width/2)) + distance <= x && (transform.right+(width/2)) + distance >= x ) checkX = true;
+		if( transform.top+data.hitY <= y && transform.bottom >= y ) checkY = true;
+		if( checkX && checkY )
+		{
+			return true;
+		}
+		return false;
+	}
+
 	public void render ( Canvas canvas )
 	{
+		//Log.d("render",getIntrinsicWidth() + " " + getIntrinsicHeight());
 		if( !visible ) return;
 		drawable.setBounds( getTransform().getRect() );
 		drawable.setAlpha( (int)(alpha*0xFF) );

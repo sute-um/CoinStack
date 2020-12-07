@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 public class StageClearDialog extends Dialog {
     private  Context context;
     private  CustumDialogClickListener custumDialogClickListener;
-    TextView goMain, next;
+    TextView goMain, next, clearTimeText;
 
 
     public StageClearDialog(@NonNull Context context, CustumDialogClickListener custumDialogClickListener) {
@@ -31,6 +31,7 @@ public class StageClearDialog extends Dialog {
 
         goMain = findViewById(R.id.stagemain);
         next = findViewById(R.id.nextstage);
+        clearTimeText = findViewById(R.id.stagecleartime);
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override

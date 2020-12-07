@@ -4,14 +4,25 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/coins"
+        android:icon="@drawable/coin"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/coins"
+        android:roundIcon="@drawable/coin"
         android:supportsRtl="true"
+        android:configChanges="keyboardHidden|orientation|screenSize"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".NormalModeActivity"></activity>
+        <service
+            android:name=".TitleMusicService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
+            android:name=".StageMusicService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity android:name=".NormalModeActivity" />
         <activity android:name=".NormalModeActivityIntent" />
         <activity android:name=".InfinityModeActivity" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

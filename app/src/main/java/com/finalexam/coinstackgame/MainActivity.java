@@ -1,13 +1,20 @@
 package com.finalexam.coinstackgame;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,23 +24,29 @@ public class MainActivity extends AppCompatActivity {
     Button.OnClickListener onClickListener;
     private long Backbtncnt = 0;
     Data data;
-    MediaPlayer m;
+
+    TextView title;
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Log.d("화면방향", "세로");
+            setContentView(R.layout.activity_main);
+        }else if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        {
+            Log.d("화면방향", "가로");
+            setContentView(R.layout.activity_main);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        m = MediaPlayer.create(this,R.raw.mainmu);
-        m.setLooping(true);
-        m.start();
 
-        SoundManager.getInstance();
-        SoundManager.initSounds(getApplicationContext());
-        SoundManager.loadSounds();
+        stopService(new Intent(this, TitleMusicService.class));
         data = new Data(getApplicationContext());
-        init();
-        action();
         Log.d("oncreate","do");
     }
 
@@ -47,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(System.currentTimeMillis() <= Backbtncnt+2000){
-            m.stop();
-            m.release();
+            stopService(new Intent(this, TitleMusicService.class));
+            finishAffinity();
            super.onBackPressed();
         }
 
@@ -69,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
         * 초기화 하는 함수
         * 버튼객체생성 등
         */
+        startService(new Intent(this, TitleMusicService.class));
+
+        SoundManager.getInstance();
+        SoundManager.initSounds(getApplicationContext());
+        SoundManager.loadSounds();
+        title = findViewById(R.id.maintitle);
+
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_title);
+        title.startAnimation(animation);
 
         btn_Normal = findViewById(R.id.btn_mode1); // 일반 모드
         btn_Infinite = findViewById(R.id.btn_mode2);// 무한 모드
@@ -78,21 +100,20 @@ public class MainActivity extends AppCompatActivity {
         onClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view){
+                stopService(new Intent(getApplicationContext(), TitleMusicService.class));
                 switch(view.getId()) {
                     case R.id.btn_mode1:
 
                         finishAffinity();
-                        Toast.makeText(getApplicationContext(),"일반 모드" , Toast.LENGTH_SHORT).show();
                         startIntent(R.id.btn_mode1);
                         break;
                     case R.id.btn_mode2:
 
                         finishAffinity();
-                        Toast.makeText(getApplicationContext(),"무한 모드" , Toast.LENGTH_SHORT).show();
                         startIntent(R.id.btn_mode2);
                         break;
                     case R.id.btn_exit:
-                        Toast.makeText(getApplicationContext(),"나가기" , Toast.LENGTH_SHORT).show();
+
                         finishAffinity();
                         System.runFinalization();
                         break;
@@ -104,16 +125,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startIntent(int id) { // 인텐트
-        m.stop();
-        m.release();
+
         Intent intent;
         switch(id){
             case R.id.btn_mode1:
+
                 intent = new Intent(getApplicationContext(), NormalModeActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
                 break;
             case R.id.btn_mode2:
+
                 intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
                startActivity(intent);
                 overridePendingTransition(0, 0);
@@ -129,4 +151,6 @@ public class MainActivity extends AppCompatActivity {
         btn_Infinite.setOnClickListener(onClickListener);
         btn_Exit.setOnClickListener(onClickListener);
     }
+
+
 }

@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 public class ResultDialog extends Dialog {
     private Context context;
     private CustumDialogClickListener custumDialogClickListener;
-    private TextView title, score, positive, negative;
+    TextView title, score, positive, negative;
 
     public ResultDialog(@NonNull Context context, CustumDialogClickListener custumDialogClickListener) {
         super(context);

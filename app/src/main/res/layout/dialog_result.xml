@@ -28,7 +28,7 @@
         android:gravity="center"
         android:text="null점"
         android:textColor="#000000"
-        android:textSize="60sp"
+        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
