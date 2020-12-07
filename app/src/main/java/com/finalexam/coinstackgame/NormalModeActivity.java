@@ -3,18 +3,19 @@ package com.finalexam.coinstackgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 public class NormalModeActivity extends AppCompatActivity {
     NormalGameView v;
     receiveThread receiveThread;
-    //MediaPlayer m;
+    MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        startService(new Intent(getApplicationContext(), StageMusicService.class));
+        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
+        m.start();
         v = new NormalGameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -24,12 +25,14 @@ public class NormalModeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        v = new NormalGameView(this);
-        setContentView(v);
-        receiveThread = new receiveThread();
-        receiveThread.start();
+        m.start();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        m.pause();
+    }
 
     @Override
     public void onBackPressed() {

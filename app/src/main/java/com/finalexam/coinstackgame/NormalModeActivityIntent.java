@@ -1,6 +1,7 @@
 package com.finalexam.coinstackgame;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,10 +10,12 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     NormalGameViewIntent v;
     receiveThread receiveThread;
     float stageCnt;
+    MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
         stageCnt = getIntent().getFloatExtra("stage",2);
         v = new NormalGameViewIntent(this,stageCnt);
         setContentView(v);
@@ -23,10 +26,12 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        v = new NormalGameViewIntent(this,stageCnt);
-        setContentView(v);
-        receiveThread = new receiveThread();
-        receiveThread.start();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     class receiveThread extends  Thread {

@@ -2,19 +2,28 @@ package com.finalexam.coinstackgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import static java.lang.Thread.sleep;
 
 public class InfinityModeActivity extends AppCompatActivity {
     GameView v;
     receiveThread receiveThread;
+    MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(getApplicationContext(), StageMusicService.class));
+        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
+        m.start();
         v = new GameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -23,12 +32,15 @@ public class InfinityModeActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        m.pause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        v = new GameView(this);
-        setContentView(v);
-        receiveThread = new receiveThread();
-        receiveThread.start();
+        m.start();
     }
 
 

@@ -10,6 +10,7 @@ package com.finalexam.coinstackgame;
         import android.graphics.Movie;
         import android.graphics.Paint;
         import android.graphics.Paint.Align;
+        import android.media.MediaPlayer;
         import android.os.Looper;
         import android.os.Handler;
         import android.util.Log;
@@ -49,7 +50,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     boolean endFlag = false;
     boolean gotomain = false;
     boolean restart = false;
-    boolean running = true;
+    boolean paused = false;
 
     float timecnt=1;
     float clearTime;
@@ -90,16 +91,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         stage.addChild( tf );
 
         cha = new MovieClip( data.getDrawable("maincoin"), 0.5f, 1f, data );
-        cha.y = stage.stageHeight - 80;
+        cha.y = stage.stageHeight - 150;
         touchPoint = cha.x = stage.stageWidth / 2;
         stage.addChild( cha );
 
         holder = getHolder();
         holder.addCallback( this );
-        gt = new GameThread( this, stage, holder, running );
-        gt2 = new GameThread( this, stage, holder, running );
-        gct = new GameCalculateThread( this, stage, running, timecnt );
-        mt = new MakeThread(this, running);
+        gt = new GameThread( this, stage, holder );
+        gt2 = new GameThread( this, stage, holder);
+        gct = new GameCalculateThread( this, stage, timecnt );
+        mt = new MakeThread(this);
     }
 
     public void changeBackground() {
@@ -143,13 +144,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void surfaceCreated(SurfaceHolder arg0) {
-        gt.start();
-        gt2.start();
-        gct.start();
-        mt.start();
+        Log.d("surface","created");
+
+        if(!paused) {
+            gt.start();
+            gt2.start();
+            gct.start();
+            mt.start();
+        }else{
+            paused = false;
+        }
     }
 
     public void surfaceDestroyed(SurfaceHolder arg0) {
+        Log.d("surface","destroyed");
+        paused = true;
+
         gt.interrupt();
         gt2.interrupt();
         gct.interrupt();
@@ -167,50 +177,46 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int tempx=0;
         tf.text = "Score : "+monCnt + "점";
 
-        if(Math.random() < timecnt/2000)
-        {
-            mon = new MovieClip( data.getDrawable("dropcoin"), 0.5f, 1 );
-            mon.y = 0;
-            mon.x = (int) (stage.stageWidth * Math.random());
-            stage.addChild( mon );
-            monArr.add( mon );
-            monSpeed.add( 0 );
-            mon = null;
 
-        }
+            if (Math.random() < timecnt / 2000) {
+                mon = new MovieClip(data.getDrawable("dropcoin"), 0.5f, 1);
+                mon.y = 0;
+                mon.x = (int) (stage.stageWidth * Math.random());
+                stage.addChild(mon);
+                monArr.add(mon);
+                monSpeed.add(0);
+                mon = null;
 
-        for( i = 0; i < monArr.size(); ++ i ) {
-            mon = monArr.get(i);
-            speed = monSpeed.get(i);
-            mon.y += speed / 2;
-            monSpeed.set(i, 20);
+            }
 
-            if (cha.hitTestPoint(mon.x, mon.y)) {
+            for (i = 0; i < monArr.size(); ++i) {
+                mon = monArr.get(i);
+                speed = monSpeed.get(i);
+                mon.y += speed / 2;
+                monSpeed.set(i, 20);
 
-                if (cha.y < stage.stageHeight) {
-                    if (mon.y <= 800) {
-                        cha.y += 600;
-                        stageCnt += 1;
-                        changeBackground();
+                if (cha.hitTestPoint(mon.x, mon.y)) {
+
+                    if (cha.y < stage.stageHeight) {
+                        if (mon.y <= 800) {
+                            cha.y += 600;
+                            stageCnt += 1;
+                            changeBackground();
+                        }
+                    } else {
+                        if (mon.y <= 800) {
+                            cha.y += 800;
+                            stageCnt += 1;
+                            changeBackground();
+                        }
                     }
-                } else {
-                    if (mon.y <= 800) {
-                        cha.y += 800;
-                        stageCnt += 1;
-                        changeBackground();
-                    }
-                }
 
-                    centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth()/ 2)) - (mon.x + (mon.getIntrinsicWidth()/ 2)));
+                    centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth() / 2)) - (mon.x + (mon.getIntrinsicWidth() / 2)));
 
 
                     if (centerDistance > (cha.getIntrinsicWidth()) / 2) {
                         cha.x = tempx;
                         endFlag = true;
-                        gt.interrupt();
-                        gt2.interrupt();
-                        gct.interrupt();
-                        mt.interrupt();
 
                         Handler mHandler = new Handler(Looper.getMainLooper());
                         mHandler.postDelayed(new Runnable() {
@@ -220,28 +226,33 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                 c.stopService(new Intent(getContext(), StageMusicService.class));
                                 SoundManager.playSound(3, 1);
 
-                                    ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
-                                        @Override
-                                        public void onPositiveClick() {
-                                            restart = true;
-                                        }
+                                ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
+                                    @Override
+                                    public void onPositiveClick() {
+                                        restart = true;
+                                    }
 
-                                        @Override
-                                        public void onNegativeClick() {
-                                            gotomain = true;
-                                        }
-                                    });
-                                    if (!((Activity)context).isFinishing()) {
+                                    @Override
+                                    public void onNegativeClick() {
+                                        gotomain = true;
+                                    }
+                                });
+                                if (!(((Activity) context).isFinishing())) {
                                     resultDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
                                     resultDialog.show();
-                                        String time = String.format("%.2f",clearTime);
-                                        resultDialog.score.setText(time+"초");
+                                    String time = String.format("%.2f", clearTime);
+                                    resultDialog.score.setText(time + "초");
                                 }
                             }
                         }, 0);
+
+                        gt.interrupt();
+                        gt2.interrupt();
+                        gct.interrupt();
+                        mt.interrupt();
                     } else {
 
-                        SoundManager.playSound(1,1);
+                        SoundManager.playSound(1, 1);
                         stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
                         stackCoin.y = (cha.y - 20) + data.hitY;
                         stackCoin.x = cha.x - (cha.x - mon.x);
@@ -264,7 +275,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                 }
                 if (mon.y > stage.stageHeight + mon.height) {
-                    SoundManager.playSound(0,1);
+                    SoundManager.playSound(0, 1);
                     idx = monArr.indexOf(mon);
                     stage.removeChild(mon);
                     monArr.remove(idx);
@@ -272,6 +283,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     --i;
                 }
             }
+
     }
     public void stacked() {
         for(int i = 0; i < stackArr.size(); i++){
@@ -290,7 +302,7 @@ class GameCalculateThread extends Thread
     boolean running;
      float stageCnt;
     float time;
-    public GameCalculateThread ( GameView view, Stage stage, boolean running, float stageCnt )
+    public GameCalculateThread ( GameView view, Stage stage, float stageCnt )
     {
         this.view = view;
         this.stage = stage;
@@ -309,7 +321,8 @@ class GameCalculateThread extends Thread
             {
                 view.clearTime += 0.01;
                 sleep( 10);
-                view.onEnterFrame();
+                if(!view.paused)
+                    view.onEnterFrame();
                 if(view.stackCoin != null)
                     view.stacked();
 
@@ -327,10 +340,8 @@ class GameCalculateThread extends Thread
 
 class MakeThread extends Thread{
     GameView view;
-    boolean running;
-    public MakeThread(GameView v, boolean running) {
+    public MakeThread(GameView v) {
         this.view = v;
-        this.running = running;
     }
 
     @Override
@@ -347,6 +358,8 @@ class MakeThread extends Thread{
     }
 }
 
+
+
 class GameThread extends Thread
 {
     SurfaceHolder holder;
@@ -355,7 +368,7 @@ class GameThread extends Thread
     GameView view;
     boolean running;
 
-    public GameThread ( GameView view, Stage stage, SurfaceHolder holder, boolean running )
+    public GameThread ( GameView view, Stage stage, SurfaceHolder holder )
     {
         this.view = view;
         this.holder = holder;

@@ -51,11 +51,12 @@ public class NormalGameView extends SurfaceView implements Callback {
     ArrayList<Integer> distance;
     MovieClip stackCoin;
     TextField tf;
+    Bitmap bg;
 
     boolean gotomain = false;
     boolean restart = false;
     boolean running = true;
-    boolean clear = false;
+    boolean pause = false;
 
     int monCnt;
     int i;
@@ -71,6 +72,7 @@ public class NormalGameView extends SurfaceView implements Callback {
         super(context);
         this.context = context;
 
+        bg = BitmapFactory.decodeResource(getResources(), R.drawable.infback1);
         stage = new Stage( this, context );
         stage.fps = 50;
         stage.stageAlpha = 0.8f;
@@ -102,7 +104,7 @@ public class NormalGameView extends SurfaceView implements Callback {
         stage.addChild( tf );
 
         cha = new MovieClip( data.getDrawable("maincoin"), 0.5f, 1f, data );
-        cha.y = stage.stageHeight - 90;
+        cha.y = stage.stageHeight - 150;
         touchPointX = cha.x = stage.stageWidth / 2;
         touchPointY = cha.y ;
         stage.addChild( cha );
@@ -135,14 +137,20 @@ public class NormalGameView extends SurfaceView implements Callback {
     }
 
     public void surfaceCreated(SurfaceHolder arg0) {
-        gt.start();
-        gt2.start();
-        gct.start();
-        mt.start();
+
+        if(!pause) {
+            gt.start();
+            gt2.start();
+            gct.start();
+            mt.start();
+        }else {
+            pause = false;
+        }
 
     }
 
     public void surfaceDestroyed(SurfaceHolder arg0) {
+        pause = true;
         gt.interrupt();
         gt2.interrupt();
         gct.interrupt();
@@ -489,12 +497,13 @@ class NormalGameCalculateThread extends Thread
         while( !isInterrupted() )
         {
             try
-            {
+            {  sleep( 10);
+                if(!view.pause) {
                 view.clearTime +=0.01;
-                sleep( 10);
-                view.onEnterFrame();
-                view.diecoin();
-                view.lifecoin();
+                    view.onEnterFrame();
+                    view.diecoin();
+                    view.lifecoin();
+                }
                 if(view.stackCoin != null)
                     view.stacked();
             }
@@ -552,11 +561,11 @@ class NormalGameThread extends Thread
         Paint p = new android.graphics.Paint();
         p.setColor(Color.RED);
 
-        Bitmap bg1 = BitmapFactory.decodeResource(view.getResources(), R.drawable.infback1);
-        Bitmap scaleBitmap = Bitmap.createScaledBitmap(bg1,view.stage.stageWidth, view.stage.stageHeight, false);
+
 
         while( !isInterrupted() )
         {
+            Bitmap scaleBitmap = Bitmap.createScaledBitmap(view.bg,view.stage.stageWidth, view.stage.stageHeight, false);
             canvas = holder.lockCanvas();
             try
             {
