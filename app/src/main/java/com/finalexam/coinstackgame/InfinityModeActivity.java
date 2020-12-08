@@ -17,13 +17,13 @@ import static java.lang.Thread.sleep;
 public class InfinityModeActivity extends AppCompatActivity {
     GameView v;
     receiveThread receiveThread;
-    MediaPlayer m;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
-        m.start();
+
+        MediaManager.start();
         v = new GameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -34,13 +34,13 @@ public class InfinityModeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        m.pause();
+        MediaManager.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        m.start();
+        MediaManager.start();
     }
 
 
@@ -52,7 +52,7 @@ public class InfinityModeActivity extends AppCompatActivity {
                 try {
                     sleep(100);
                     if (v.gotomain == true) {
-                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+                        MediaManager.stop();
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -61,7 +61,6 @@ public class InfinityModeActivity extends AppCompatActivity {
                     }
 
                     if(v.restart == true){
-                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -75,7 +74,7 @@ public class InfinityModeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+        MediaManager.stop();
         super.onBackPressed();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);

@@ -40,7 +40,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
                 try {
                     sleep(100);
                     if (v.gotomain == true) {
-                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+                        MediaManager.stop();
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -50,7 +50,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
                     }
 
                     if(v.restart == true){
-                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+                        MediaManager.stop();
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), NormalModeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

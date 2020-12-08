@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        MediaManager.create(getApplicationContext());
 
         stopService(new Intent(this, TitleMusicService.class));
         data = new Data(getApplicationContext());
