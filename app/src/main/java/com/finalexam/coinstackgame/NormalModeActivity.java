@@ -14,7 +14,7 @@ public class NormalModeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        MediaManager.create(getApplicationContext());
         MediaManager.start();
         v = new NormalGameView(this);
         setContentView(v);
@@ -36,7 +36,7 @@ public class NormalModeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+        MediaManager.stop();
         super.onBackPressed();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -52,7 +52,6 @@ public class NormalModeActivity extends AppCompatActivity {
                     sleep(100);
                     if (v.gotomain == true) {
                         MediaManager.stop();
-                        stopService(new Intent(getApplicationContext(), StageMusicService.class));
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -61,6 +60,7 @@ public class NormalModeActivity extends AppCompatActivity {
                     }
 
                     if(v.restart == true){
+                        MediaManager.start();
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), NormalModeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

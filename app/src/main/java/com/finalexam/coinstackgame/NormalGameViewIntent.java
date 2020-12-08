@@ -148,8 +148,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Context c = getContext();
-                    c.stopService(new Intent(getContext(), StageMusicService.class));
 
                     PauseDialog  pauseDialog= new PauseDialog(getContext(), new CustumDialogClickListener() {
                         @Override
@@ -258,8 +256,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                         @Override
                         public void run() {
                             MediaManager.stop();
-                            Context c = getContext();
-                            c.stopService(new Intent(getContext(), StageMusicService.class));
                             SoundManager.playSound(3, 1);
                             ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
                                 @Override
@@ -355,8 +351,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                         @Override
                         public void run() {
                             MediaManager.stop();
-                            Context c = getContext();
-                            c.stopService(new Intent(getContext(), StageMusicService.class));
+
                             SoundManager.playSound(3,1);
                             ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
                                 @Override
@@ -457,8 +452,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                         @Override
                         public void run() {
                             MediaManager.stop();
-                            Context c = getContext();
-                            c.stopService(new Intent(getContext(), StageMusicService.class));
+
                             SoundManager.playSound(3, 1);
                             ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
                                 @Override

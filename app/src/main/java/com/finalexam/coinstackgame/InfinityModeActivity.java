@@ -22,7 +22,7 @@ public class InfinityModeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        MediaManager.create(getApplicationContext());
         MediaManager.start();
         v = new GameView(this);
         setContentView(v);
@@ -61,6 +61,7 @@ public class InfinityModeActivity extends AppCompatActivity {
                     }
 
                     if(v.restart == true){
+                        MediaManager.start();
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

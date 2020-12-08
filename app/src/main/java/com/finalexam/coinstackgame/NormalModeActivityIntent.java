@@ -14,6 +14,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MediaManager.create(getApplicationContext());
         stageCnt = getIntent().getFloatExtra("stage",2);
         v = new NormalGameViewIntent(this,stageCnt);
         setContentView(v);
@@ -66,7 +67,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        stopService(new Intent(getApplicationContext(), StageMusicService.class));
+        MediaManager.stop();
         super.onBackPressed();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
