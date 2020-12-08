@@ -152,7 +152,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             gct.start();
             mt.start();
         }else{
-            paused = false;
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Context c = getContext();
+                    c.stopService(new Intent(getContext(), StageMusicService.class));
+
+                     PauseDialog  pauseDialog= new PauseDialog(getContext(), new CustumDialogClickListener() {
+                        @Override
+                        public void onPositiveClick() {
+                            paused = false;
+                        }
+
+                        @Override
+                        public void onNegativeClick() {
+
+                        }
+                    });
+                    if (!(((Activity) context).isFinishing())) {
+                        pauseDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                        pauseDialog.show();
+                    }
+                }
+            }, 0);
+
         }
     }
 
@@ -178,7 +202,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         tf.text = "Score : "+monCnt + "점";
 
 
-            if (Math.random() < timecnt / 2000) {
+            if (Math.random() < 0.007+(timecnt / 2000)) {
                 mon = new MovieClip(data.getDrawable("dropcoin"), 0.5f, 1);
                 mon.y = 0;
                 mon.x = (int) (stage.stageWidth * Math.random());

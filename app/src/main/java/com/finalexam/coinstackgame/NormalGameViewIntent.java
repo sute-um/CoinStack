@@ -1,5 +1,6 @@
 package com.finalexam.coinstackgame;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -135,13 +136,39 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
     }
 
     public void surfaceCreated(SurfaceHolder arg0) {
+        Log.d("surface","created");
+
         if(!pause) {
             gt.start();
             gt2.start();
             gct.start();
             mt.start();
-        }else {
-            pause = false;
+        }else{
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Context c = getContext();
+                    c.stopService(new Intent(getContext(), StageMusicService.class));
+
+                    PauseDialog  pauseDialog= new PauseDialog(getContext(), new CustumDialogClickListener() {
+                        @Override
+                        public void onPositiveClick() {
+                            pause = false;
+                        }
+
+                        @Override
+                        public void onNegativeClick() {
+
+                        }
+                    });
+                    if (!(((Activity) context).isFinishing())) {
+                        pauseDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                        pauseDialog.show();
+                    }
+                }
+            }, 0);
+
         }
     }
 
@@ -177,7 +204,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             speed = lifeSpeed.get(i);
             lifec.y += speed/2;
             lifeSpeed.set( i, (int)(10+(cntforspeed)) );
-            Log.d("lifecnt",speed+"");
             if( cha.anotherHitTestPoint( lifec.x, lifec.y ) ){
                 SoundManager.playSound(1,1);
                 idx = lifeArr.indexOf(lifec);
@@ -203,7 +229,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
 
     public void diecoin() {
         int speed,idx;
-        Log.d("diecnt",cntforspeed+"");
         if(Math.random() < cntforspeed/500){
             die = new MovieClip(data.getDrawable("dieCoin"),0.5f,1);
             die.y = 0;
@@ -219,7 +244,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             speed = dieSpeed.get(i);
             die.y += speed/2;
             dieSpeed.set( i, (int)(10+(cntforspeed)) );
-            Log.d("diecnt",speed+"");
             if( cha.anotherHitTestPoint( die.x, die.y ) ){
 
                 SoundManager.playSound(1,1);
@@ -233,6 +257,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            MediaManager.stop();
                             Context c = getContext();
                             c.stopService(new Intent(getContext(), StageMusicService.class));
                             SoundManager.playSound(3, 1);
@@ -288,7 +313,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         int centerDistance = 0; //밑에코인과 위의코인 중심점 거리 비교변수
         int speed, idx;
         int tempx=0;
-        Log.d("coincnt",cntforspeed+"");
         String time = String.format("%.2f",clearTime);
         tf.text = "Stage : "+(int)stagecnt+" "+time + "초 Life : " + life+"개";
 
@@ -310,7 +334,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             speed = monSpeed.get( i );
             mon.y += speed / 2;
             monSpeed.set( i, (int)(10+(cntforspeed)) );
-            Log.d("coincnt",speed+"");
             if( cha.hitTestPoint( mon.x, mon.y ) )
             {
                 SoundManager.playSound(1,1);
@@ -331,6 +354,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            MediaManager.stop();
                             Context c = getContext();
                             c.stopService(new Intent(getContext(), StageMusicService.class));
                             SoundManager.playSound(3,1);
@@ -374,7 +398,6 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                                     @Override
                                     public void onPositiveClick() {
                                         stagecnt++;
-                                        Log.d("check", stagecnt+"");
 
                                         Intent intent = new Intent(getContext(), NormalModeActivityIntent.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -433,6 +456,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            MediaManager.stop();
                             Context c = getContext();
                             c.stopService(new Intent(getContext(), StageMusicService.class));
                             SoundManager.playSound(3, 1);

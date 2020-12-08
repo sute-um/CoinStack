@@ -10,6 +10,10 @@
         android:roundIcon="@drawable/coin"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".ExplainActivity"></activity>
+
+
+
 
         <service
             android:name=".TitleMusicService"

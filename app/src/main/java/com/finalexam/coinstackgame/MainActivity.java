@@ -20,6 +20,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     Button btn_Normal;
     Button btn_Infinite;
+    Button btn_explain;
     Button btn_Exit;
     Button.OnClickListener onClickListener;
     private long Backbtncnt = 0;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
         btn_Normal = findViewById(R.id.btn_mode1); // 일반 모드
         btn_Infinite = findViewById(R.id.btn_mode2);// 무한 모드
+        btn_explain = findViewById(R.id.explainBtn);
         btn_Exit = findViewById(R.id.btn_exit); // 나가기
 
 
@@ -111,6 +113,10 @@ public class MainActivity extends AppCompatActivity {
 
                         finishAffinity();
                         startIntent(R.id.btn_mode2);
+                        break;
+                    case R.id.explainBtn:
+
+                        startIntent(R.id.explainBtn);
                         break;
                     case R.id.btn_exit:
 
@@ -140,6 +146,12 @@ public class MainActivity extends AppCompatActivity {
                startActivity(intent);
                 overridePendingTransition(0, 0);
                 break;
+            case R.id.explainBtn:
+
+                intent = new Intent(getApplicationContext(), ExplainActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+                break;
         }
     }
 
@@ -149,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
          */
         btn_Normal.setOnClickListener(onClickListener);
         btn_Infinite.setOnClickListener(onClickListener);
+        btn_explain.setOnClickListener(onClickListener);
         btn_Exit.setOnClickListener(onClickListener);
     }
 

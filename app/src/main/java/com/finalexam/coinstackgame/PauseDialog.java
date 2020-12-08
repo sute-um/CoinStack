@@ -27,7 +27,7 @@ public class PauseDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_result);
+        setContentView(R.layout.dialog_pause);
 
         text = findViewById(R.id.pauseText);
         resume = findViewById(R.id.resume);

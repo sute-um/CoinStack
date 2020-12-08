@@ -44,6 +44,7 @@ public class InfinityModeActivity extends AppCompatActivity {
     }
 
 
+
     class receiveThread extends  Thread {
         @Override
         public void run() {
@@ -77,6 +78,8 @@ public class InfinityModeActivity extends AppCompatActivity {
         stopService(new Intent(getApplicationContext(), StageMusicService.class));
         super.onBackPressed();
         finishAffinity();
-        System.exit(0);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

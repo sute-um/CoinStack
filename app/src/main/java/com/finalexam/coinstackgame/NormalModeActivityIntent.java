@@ -10,12 +10,10 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     NormalGameViewIntent v;
     receiveThread receiveThread;
     float stageCnt;
-    MediaPlayer m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
         stageCnt = getIntent().getFloatExtra("stage",2);
         v = new NormalGameViewIntent(this,stageCnt);
         setContentView(v);
@@ -26,12 +24,13 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        MediaManager.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        MediaManager.pause();
     }
 
     class receiveThread extends  Thread {
@@ -70,6 +69,8 @@ public class NormalModeActivityIntent extends AppCompatActivity {
         stopService(new Intent(getApplicationContext(), StageMusicService.class));
         super.onBackPressed();
         finishAffinity();
-        System.exit(0);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

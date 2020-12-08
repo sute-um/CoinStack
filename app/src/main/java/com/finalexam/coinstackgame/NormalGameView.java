@@ -1,5 +1,6 @@
 package com.finalexam.coinstackgame;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -137,14 +138,39 @@ public class NormalGameView extends SurfaceView implements Callback {
     }
 
     public void surfaceCreated(SurfaceHolder arg0) {
+        Log.d("surface","created");
 
         if(!pause) {
             gt.start();
             gt2.start();
             gct.start();
             mt.start();
-        }else {
-            pause = false;
+        }else{
+            Handler mHandler = new Handler(Looper.getMainLooper());
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Context c = getContext();
+                    c.stopService(new Intent(getContext(), StageMusicService.class));
+
+                    PauseDialog  pauseDialog= new PauseDialog(getContext(), new CustumDialogClickListener() {
+                        @Override
+                        public void onPositiveClick() {
+                            pause = false;
+                        }
+
+                        @Override
+                        public void onNegativeClick() {
+
+                        }
+                    });
+                    if (!(((Activity) context).isFinishing())) {
+                        pauseDialog.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                        pauseDialog.show();
+                    }
+                }
+            }, 0);
+
         }
 
     }
@@ -182,6 +208,7 @@ public class NormalGameView extends SurfaceView implements Callback {
             lifeSpeed.set(i, (int)(10+stagecnt));
 
             if( cha.anotherHitTestPoint( lifec.x, lifec.y ) ){
+                SoundManager.playSound(1,1);
 
                 idx = lifeArr.indexOf(lifec);
                 stage.removeChild(lifec);
@@ -222,10 +249,6 @@ public class NormalGameView extends SurfaceView implements Callback {
             dieSpeed.set(i, (int)(10+stagecnt));
 
             if( cha.anotherHitTestPoint( die.x, die.y ) ){
-                idx = dieArr.indexOf(die);
-                stage.removeChild(die);
-                dieArr.remove(idx);
-                dieSpeed.remove(idx);
 
                 if(life<1){
                     gt.interrupt();
@@ -261,12 +284,14 @@ public class NormalGameView extends SurfaceView implements Callback {
                         }
                     }, 0);
                 }else {
+                    SoundManager.playSound(1,1);
+                    life--;
                     idx = dieArr.indexOf(die);
                     stage.removeChild(die);
                     dieArr.remove(idx);
                     dieSpeed.remove(idx);
                     --i;
-                    life--;
+
                 }
             }
 

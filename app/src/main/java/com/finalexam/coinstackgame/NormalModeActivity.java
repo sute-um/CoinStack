@@ -9,12 +9,12 @@ import android.os.Bundle;
 public class NormalModeActivity extends AppCompatActivity {
     NormalGameView v;
     receiveThread receiveThread;
-    MediaPlayer m;
+    MediaManager m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        m = MediaPlayer.create(getApplicationContext(),R.raw.stagemusic);
+        m.create(getApplicationContext());
         m.start();
         v = new NormalGameView(this);
         setContentView(v);
@@ -39,7 +39,9 @@ public class NormalModeActivity extends AppCompatActivity {
         stopService(new Intent(getApplicationContext(), StageMusicService.class));
         super.onBackPressed();
         finishAffinity();
-        System.exit(0);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     class receiveThread extends  Thread {
@@ -69,5 +71,6 @@ public class NormalModeActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }
