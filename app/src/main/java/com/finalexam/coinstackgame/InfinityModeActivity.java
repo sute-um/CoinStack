@@ -18,7 +18,6 @@ public class InfinityModeActivity extends AppCompatActivity {
     GameView v;
     receiveThread receiveThread;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +27,6 @@ public class InfinityModeActivity extends AppCompatActivity {
         setContentView(v);
         receiveThread = new receiveThread();
         receiveThread.start();
-
     }
 
     @Override
@@ -43,6 +41,26 @@ public class InfinityModeActivity extends AppCompatActivity {
         MediaManager.start();
     }
 
+    public void goToMainScreen() {
+        MediaManager.stop();
+        finishAffinity();
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+        v.gotomain = false;
+    }
+
+    public void restart() {
+        MediaManager.stop();
+        finishAffinity();
+        Intent intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+        v.restart=false;
+    }
+
 
 
     class receiveThread extends  Thread {
@@ -52,20 +70,12 @@ public class InfinityModeActivity extends AppCompatActivity {
                 try {
                     sleep(100);
                     if (v.gotomain == true) {
-                        MediaManager.stop();
-                        finishAffinity();
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        goToMainScreen();
                         v.gotomain = false;
                     }
 
                     if(v.restart == true){
-                        MediaManager.start();
-                        finishAffinity();
-                        Intent intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        restart();
                         v.restart=false;
                     }
                 }catch (Exception e){}
@@ -75,11 +85,7 @@ public class InfinityModeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        MediaManager.stop();
         super.onBackPressed();
-        finishAffinity();
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        goToMainScreen();
     }
 }

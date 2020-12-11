@@ -2,9 +2,6 @@ package com.finalexam.coinstackgame;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-
-import java.util.ArrayList;
 
 public class MovieClip implements DisplayObject {
 	
@@ -16,7 +13,6 @@ public class MovieClip implements DisplayObject {
 	public int height;
 	public float alpha;
 	public boolean visible;
-	public int center;
 	Data data;
 	int distance;
 	public float centerX = 0;
@@ -60,8 +56,6 @@ public class MovieClip implements DisplayObject {
 		this( drawable, 0, 0 );
 	}
 
-	//
-	
 	public int getIntrinsicWidth ()
 	{
 		return drawable.getIntrinsicWidth();
@@ -113,7 +107,6 @@ public class MovieClip implements DisplayObject {
 
 	public void render ( Canvas canvas )
 	{
-		//Log.d("render",getIntrinsicWidth() + " " + getIntrinsicHeight());
 		if( !visible ) return;
 		drawable.setBounds( getTransform().getRect() );
 		drawable.setAlpha( (int)(alpha*0xFF) );

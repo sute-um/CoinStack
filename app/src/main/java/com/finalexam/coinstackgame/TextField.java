@@ -48,9 +48,7 @@ public class TextField implements DisplayObject {
 	{
 		this( 0, 0 );
 	}
-	
-	//
-	
+
 	public void setPaint ( Paint paint )
 	{
 		this.paint = paint;

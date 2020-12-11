@@ -39,7 +39,7 @@
         android:id="@+id/negative"
         android:layout_width="123dp"
         android:layout_height="81dp"
-        android:background="#F3F3F3"
+        android:background="#FFF1F1"
         android:clickable="true"
         android:gravity="center"
         android:text="메인화면"

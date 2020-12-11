@@ -5,7 +5,7 @@
     android:id="@+id/pause"
     android:layout_width="300dp"
     android:layout_height="500dp"
-    android:background="#FFFFFF">
+    android:background="#CEE8EC">
 
     <TextView
         android:id="@+id/pauseText"
@@ -30,7 +30,7 @@
         android:background="#CEE8EC"
         android:clickable="true"
         android:gravity="center"
-        android:text="재개"
+        android:text="이어하기"
         android:textColor="#000000"
         android:textSize="50sp"
         app:layout_constraintBottom_toBottomOf="parent"

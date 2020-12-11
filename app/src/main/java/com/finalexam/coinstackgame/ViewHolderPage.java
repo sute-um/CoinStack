@@ -3,7 +3,6 @@ package com.finalexam.coinstackgame;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ViewHolderPage extends RecyclerView.ViewHolder {

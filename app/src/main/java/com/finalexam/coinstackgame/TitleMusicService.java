@@ -1,31 +1,23 @@
 package com.finalexam.coinstackgame;
 
-import android.app.Service;
-import android.content.Intent;
+import android.content.Context;
 import android.media.MediaPlayer;
-import android.os.IBinder;
 
-import androidx.annotation.Nullable;
-
-public class TitleMusicService extends Service {
-    private MediaPlayer mediaPlayer;
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+public class TitleMusicService {
+    static MediaPlayer m;
+    public static void create(Context context) {
+        m = MediaPlayer.create(context, R.raw.mainmu);
     }
 
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        mediaPlayer = MediaPlayer.create(this,R.raw.mainmu);
-        mediaPlayer.start();
-
+    public static void start() {
+        m.start();
     }
 
-    @Override
-    public void onDestroy() {
-        mediaPlayer.stop();
-        super.onDestroy();
+    public static void stop(){
+        m.stop();
+    }
+
+    public static void pause() {
+        m.pause();
     }
 }

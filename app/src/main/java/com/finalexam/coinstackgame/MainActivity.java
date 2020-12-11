@@ -29,27 +29,11 @@ public class MainActivity extends AppCompatActivity {
     TextView title;
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            Log.d("화면방향", "세로");
-            setContentView(R.layout.activity_main);
-        }else if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
-        {
-            Log.d("화면방향", "가로");
-            setContentView(R.layout.activity_main);
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        MediaManager.create(getApplicationContext());
-
-        stopService(new Intent(this, TitleMusicService.class));
+        TitleMusicService.create(getApplicationContext());
         data = new Data(getApplicationContext());
-        Log.d("oncreate","do");
     }
 
     @Override
@@ -62,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(System.currentTimeMillis() <= Backbtncnt+2000){
-            stopService(new Intent(this, TitleMusicService.class));
+            TitleMusicService.stop();
             finishAffinity();
            super.onBackPressed();
         }
@@ -70,9 +54,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        TitleMusicService.pause();
+    }
+
+    @Override
     protected void onResume() {
 
         super.onResume();
+        TitleMusicService.start();
         setContentView(R.layout.activity_main);
         init();
         action();
@@ -84,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         * 초기화 하는 함수
         * 버튼객체생성 등
         */
-        startService(new Intent(this, TitleMusicService.class));
 
         SoundManager.getInstance();
         SoundManager.initSounds(getApplicationContext());

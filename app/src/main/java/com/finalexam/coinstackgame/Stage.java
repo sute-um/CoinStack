@@ -3,9 +3,7 @@ package com.finalexam.coinstackgame;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
 import android.view.WindowManager;
@@ -35,7 +33,6 @@ public class Stage {
 	
 	public Stage ( View view, Context context )
 	{
-		setBackground();
 		this.view = view;
 		this.context = context;
 		res = context.getResources();
@@ -55,11 +52,10 @@ public class Stage {
 			displayObject.render(canvas);
 		}
 		displayObject = null;
-	}
+		}
 	}
 	
-	public void setBackgroundColor ( int color )
-	{
+	public void setBackgroundColor ( int color ) {
 		bgcRed = (int)( color / 0x10000 );
 		bgcGreen = (int)( color / 0x100 ) - bgcRed * 0x100;
 		bgcBlue = (int)( color ) - bgcRed * 0x10000 - bgcGreen * 0x100;
@@ -68,11 +64,6 @@ public class Stage {
 	public int getBackgroundColor ( )
 	{
 		return bgcRed * 0x10000 + bgcGreen * 0x100 + bgcBlue;
-	}
-
-	public void setBackground() {
-
-
 	}
 	
 	public void addChild ( DisplayObject displayObject )
@@ -89,5 +80,4 @@ public class Stage {
 	{
 		return doArr.size();
 	}
-	
 }

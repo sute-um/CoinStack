@@ -1,7 +1,6 @@
 package com.finalexam.coinstackgame;
 
 import android.graphics.Rect;
-import android.util.Log;
 
 public class Transform {
 	
@@ -9,7 +8,6 @@ public class Transform {
 	int right;
 	int top;
 	int bottom;
-	int center;
 	
 	public Transform ( MovieClip mc ) {
 		initTransform( mc );
@@ -17,7 +15,6 @@ public class Transform {
 	
 	public void initTransform ( MovieClip mc )
 	{
-		//centerX , Y= 사각형의 x, y축 중심의 상대위치
 		left = (int) (mc.x - mc.width * mc.centerX);
 		right = (int) (mc.x + mc.width * (1-mc.centerX));
 		bottom = (int) (mc.y);
