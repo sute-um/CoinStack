@@ -3,7 +3,7 @@ package com.finalexam.coinstackgame;
 import android.content.Context;
 import android.media.MediaPlayer;
 
-public class MediaManager{
+public class StageMusicManager {
     static MediaPlayer m;
     public static void create(Context context) {
         m = MediaPlayer.create(context, R.raw.stagemusic);

@@ -20,14 +20,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     Context context;
     GameThread gt, gt2;
     GameCalculateThread gct;
-    MakeThread mt;
+    CoinLocationSetThread ct;
     SurfaceHolder holder;
 
     Stage stage;
     Data data;
-    ArrayList<MovieClip> monArr, stackArr;
-    ArrayList<Integer> monSpeed, distance;
-    MovieClip mon, cha, stackCoin;
+    ArrayList<Coin> dropArr, stackArr;
+    ArrayList<Integer> dropSpeed, distance;
+    Coin dropcoin, maincoin, stackCoin;
 
     TextField tf;
     Bitmap bg;
@@ -52,9 +52,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         stage = new Stage( this, context );
         stage.fps = 50;
         stage.stageAlpha = 0.8f;
-        monArr = new ArrayList<MovieClip>();
-        monSpeed = new ArrayList<Integer>();
-        stackArr = new ArrayList<MovieClip>();
+        dropArr = new ArrayList<Coin>();
+        dropSpeed = new ArrayList<Integer>();
+        stackArr = new ArrayList<Coin>();
         distance = new ArrayList<Integer>();
 
         data = new Data( context );
@@ -72,17 +72,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         tf.antiAlias = true;
         stage.addChild( tf );
 
-        cha = new MovieClip( data.getDrawable("maincoin"), 0.5f, 1f, data );
-        cha.y = stage.stageHeight - 150;
-        touchPoint = cha.x = stage.stageWidth / 2;
-        stage.addChild( cha );
+        maincoin = new Coin( data.getDrawable("maincoin"), 0.5f, 1f, data );
+        maincoin.y = stage.stageHeight - 150;
+        touchPoint = maincoin.x = stage.stageWidth / 2;
+        stage.addChild( maincoin );
 
         holder = getHolder();
         holder.addCallback( this );
         gt = new GameThread( this, stage, holder );
         gt2 = new GameThread( this, stage, holder);
         gct = new GameCalculateThread( this, stage, timecnt );
-        mt = new MakeThread(this);
+        ct = new CoinLocationSetThread(this);
     }
 
     public void changeBackground() {
@@ -139,7 +139,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MediaManager.stop();
+                StageMusicManager.stop();
                 SoundManager.playSound(3, 1);
 
                 ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
@@ -167,14 +167,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         gt.start();
         gt2.start();
         gct.start();
-        mt.start();
+        ct.start();
     }
 
     public void interruptThreads() {
         gt.interrupt();
         gt2.interrupt();
         gct.interrupt();
-        mt.interrupt();
+        ct.interrupt();
     }
 
     public boolean onTouchEvent(MotionEvent event)
@@ -206,7 +206,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void setCoinLocation() {
-        cha.x +=  (touchPoint - cha.x);
+        maincoin.x +=  (touchPoint - maincoin.x);
     }
 
     public void onEnterFrame () {
@@ -217,42 +217,42 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
         if (Math.random() < 0.007+(timecnt / 2000)) {
-                mon = new MovieClip(data.getDrawable("dropcoin"), 0.5f, 1);
-                mon.y = 0;
-                mon.x = (int) (stage.stageWidth * Math.random());
-                stage.addChild(mon);
-                monArr.add(mon);
-                monSpeed.add(0);
-                mon = null;
+            dropcoin = new Coin(data.getDrawable("dropcoin"), 0.5f, 1);
+            dropcoin.y = 0;
+            dropcoin.x = (int) (stage.stageWidth * Math.random());
+                stage.addChild(dropcoin);
+                dropArr.add(dropcoin);
+            dropSpeed.add(0);
+            dropcoin = null;
 
         }
 
-        for (i = 0; i < monArr.size(); ++i) {
-                mon = monArr.get(i);
-                speed = monSpeed.get(i);
-                mon.y += speed / 2;
-                monSpeed.set(i, 20);
+        for (i = 0; i < dropArr.size(); ++i) {
+            dropcoin = dropArr.get(i);
+                speed = dropSpeed.get(i);
+            dropcoin.y += speed / 2;
+            dropSpeed.set(i, 20);
 
-                if (cha.hitTestPoint(mon.x, mon.y)) {
-                    if (cha.y < stage.stageHeight) {
-                        if (mon.y <= 800) {
-                            cha.y += 600;
+                if (maincoin.hitTestPoint(dropcoin.x, dropcoin.y)) {
+                    if (maincoin.y < stage.stageHeight) {
+                        if (dropcoin.y <= 800) {
+                            maincoin.y += 600;
                             stageCnt += 1;
                             changeBackground();
                         }
                     } else {
-                        if (mon.y <= 800) {
-                            cha.y += 800;
+                        if (dropcoin.y <= 800) {
+                            maincoin.y += 800;
                             stageCnt += 1;
                             changeBackground();
                         }
                     }
 
-                    centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth() / 2)) - (mon.x + (mon.getIntrinsicWidth() / 2)));
+                    centerDistance = Math.abs((maincoin.x + (maincoin.getIntrinsicWidth() / 2)) - (dropcoin.x + (dropcoin.getIntrinsicWidth() / 2)));
 
 
-                    if (centerDistance > (cha.getIntrinsicWidth()) / 2) {
-                        cha.x = tempx;
+                    if (centerDistance > (maincoin.getIntrinsicWidth()) / 2) {
+                        maincoin.x = tempx;
                         endFlag = true;
 
                         showResultDialog();
@@ -260,41 +260,41 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     } else {
 
                         SoundManager.playSound(1, 1);
-                        stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
-                        stackCoin.y = (cha.y - 20) + data.hitY;
-                        stackCoin.x = cha.x - (cha.x - mon.x);
-                        distance.add((mon.x - cha.x));
+                        stackCoin = new Coin(data.getDrawable("stackCoin"), 0.5f, 1);
+                        stackCoin.y = (maincoin.y - 20) + data.hitY;
+                        stackCoin.x = maincoin.x - (maincoin.x - dropcoin.x);
+                        distance.add((dropcoin.x - maincoin.x));
                         stackArr.add(stackCoin);
 
 
                         if (stackArr.size() > 1)
-                            cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
+                            maincoin.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
 
                         stage.addChild(stackCoin);
 
-                        idx = monArr.indexOf(mon);
-                        stage.removeChild(mon);
-                        monArr.remove(idx);
-                        monSpeed.remove(idx);
+                        idx = dropArr.indexOf(dropcoin);
+                        stage.removeChild(dropcoin);
+                        dropArr.remove(idx);
+                        dropSpeed.remove(idx);
 
                         --i;
                         ++monCnt;
                     }
                 }
-                if (mon.y > stage.stageHeight + mon.height) {
+                if (dropcoin.y > stage.stageHeight + dropcoin.height) {
                     SoundManager.playSound(0, 1);
-                    idx = monArr.indexOf(mon);
-                    stage.removeChild(mon);
-                    monArr.remove(idx);
-                    monSpeed.remove(idx);
+                    idx = dropArr.indexOf(dropcoin);
+                    stage.removeChild(dropcoin);
+                    dropArr.remove(idx);
+                    dropSpeed.remove(idx);
                     --i;
                 }
         }
     }
     public void stacked() {
         for(int i = 0; i < stackArr.size(); i++){
-            stackArr.get(i).x = cha.x+ (distance.get(i));
-            stackArr.get(i).y = cha.y-(cha.height/8)-((i+1)*(cha.height/2));
+            stackArr.get(i).x = maincoin.x+ (distance.get(i));
+            stackArr.get(i).y = maincoin.y-(maincoin.height/8)-((i+1)*(maincoin.height/2));
         }
     }
 }
@@ -337,9 +337,9 @@ class GameCalculateThread extends Thread
     }
 }
 
-class MakeThread extends Thread{
+class CoinLocationSetThread extends Thread{
     GameView view;
-    public MakeThread(GameView v) {
+    public CoinLocationSetThread(GameView v) {
         this.view = v;
     }
 

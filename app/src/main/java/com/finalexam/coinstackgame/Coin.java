@@ -3,7 +3,7 @@ package com.finalexam.coinstackgame;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
-public class MovieClip implements DisplayObject {
+public class Coin implements DisplayObject {
 	
 	Drawable drawable;
 	
@@ -18,9 +18,9 @@ public class MovieClip implements DisplayObject {
 	public float centerX = 0;
 	public float centerY = 0;
 	
-	Transform transform;
+	Shape shape;
 
-	public MovieClip ( Drawable drawable, float centerX, float centerY )
+	public Coin(Drawable drawable, float centerX, float centerY )
 	{
 		this.drawable = drawable;
 		x = 0;
@@ -32,11 +32,11 @@ public class MovieClip implements DisplayObject {
 		this.centerX = centerX;
 		this.centerY = centerY;
 		distance = 0;
-		transform = new Transform( this );
+		shape = new Shape( this );
 
 	}
 
-	public MovieClip ( Drawable drawable, float centerX, float centerY, Data d)
+	public Coin(Drawable drawable, float centerX, float centerY, Data d)
 	{
 		this.drawable = drawable;
 		x = 0;
@@ -48,10 +48,10 @@ public class MovieClip implements DisplayObject {
 		this.centerX = centerX;
 		this.centerY = centerY;
 		this.data = d;
-		transform = new Transform( this );
+		shape = new Shape( this );
 	}
 	
-	public MovieClip ( Drawable drawable )
+	public Coin(Drawable drawable )
 	{
 		this( drawable, 0, 0 );
 	}
@@ -66,24 +66,24 @@ public class MovieClip implements DisplayObject {
 		return drawable.getIntrinsicHeight();
 	}
 	
-	public Transform getTransform ( )
+	public Shape getShape( )
 	{
-		transform.initTransform( this );
-		return transform;
+		shape.initShape( this );
+		return shape;
 	}
 	
 	public boolean hitTestPoint ( int x, int y )
 	{
 
-		transform.initTransform( this );
+		shape.initShape( this );
 		
 		boolean checkX = false;
 		boolean checkY = false;
-			if( (transform.left-(width/2)) + distance <= x && (transform.right+(width/2)) + distance >= x ) checkX = true;
-			if( transform.top+data.hitY <= y && transform.bottom >= y ) checkY = true;
+			if( (shape.left-(width/2)) + distance <= x && (shape.right+(width/2)) + distance >= x ) checkX = true;
+			if( shape.top+data.hitY <= y && shape.bottom >= y ) checkY = true;
 		if( checkX && checkY )
 		{
-			data.setHitY(transform.getHeight()/2);
+			data.setHitY(shape.getHeight()/2);
 			return true;
 		}
 		return false;
@@ -92,12 +92,12 @@ public class MovieClip implements DisplayObject {
 	public boolean anotherHitTestPoint ( int x, int y )
 	{
 
-		transform.initTransform( this );
+		shape.initShape( this );
 
 		boolean checkX = false;
 		boolean checkY = false;
-		if( (transform.left-(width/2)) + distance <= x && (transform.right+(width/2)) + distance >= x ) checkX = true;
-		if( transform.top+data.hitY <= y && transform.bottom >= y ) checkY = true;
+		if( (shape.left-(width/2)) + distance <= x && (shape.right+(width/2)) + distance >= x ) checkX = true;
+		if( shape.top+data.hitY <= y && shape.bottom >= y ) checkY = true;
 		if( checkX && checkY )
 		{
 			return true;
@@ -108,7 +108,7 @@ public class MovieClip implements DisplayObject {
 	public void render ( Canvas canvas )
 	{
 		if( !visible ) return;
-		drawable.setBounds( getTransform().getRect() );
+		drawable.setBounds( getShape().getRect() );
 		drawable.setAlpha( (int)(alpha*0xFF) );
 		drawable.draw( canvas );
 	}

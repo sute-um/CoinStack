@@ -25,17 +25,17 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MediaManager.start();
+        StageMusicManager.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        MediaManager.pause();
+        StageMusicManager.pause();
     }
 
     public void goToMainScreen() {
-        MediaManager.stop();
+        StageMusicManager.stop();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -45,7 +45,7 @@ public class NormalModeActivityIntent extends AppCompatActivity {
     }
 
     public void restart() {
-        MediaManager.stop();
+        StageMusicManager.stop();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), NormalModeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

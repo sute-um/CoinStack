@@ -32,9 +32,9 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
 
     Stage stage;
     Data data;
-    ArrayList<MovieClip> monArr, dieArr, lifeArr, stackArr;
-    ArrayList<Integer> monSpeed, dieSpeed, lifeSpeed, distance;
-    MovieClip mon, cha, die, lifec, stackCoin;
+    ArrayList<Coin> dropArr, dieArr, lifeArr, stackArr;
+    ArrayList<Integer> dropSpeed, dieSpeed, lifeSpeed, distance;
+    Coin dropcoin, maincoin, die, lifec, stackCoin;
 
     TextField tf;
     Bitmap bg;
@@ -57,14 +57,14 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         stage = new Stage( this, context );
         stage.fps = 50;
         stage.stageAlpha = 0.8f;
-        monArr = new ArrayList<MovieClip>();
-        monSpeed = new ArrayList<Integer>();
+        dropArr = new ArrayList<Coin>();
+        dropSpeed = new ArrayList<Integer>();
         dieSpeed = new ArrayList<Integer>();
         lifeSpeed = new ArrayList<Integer>();
-        stackArr = new ArrayList<MovieClip>();
+        stackArr = new ArrayList<Coin>();
         distance = new ArrayList<Integer>();
-        dieArr = new ArrayList<MovieClip>();
-        lifeArr = new ArrayList<MovieClip>();
+        dieArr = new ArrayList<Coin>();
+        lifeArr = new ArrayList<Coin>();
 
         data = new Data( context );
         data.addImageResource( "maincoin", R.drawable.coin );
@@ -85,11 +85,11 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         tf.antiAlias = true;
         stage.addChild( tf );
 
-        cha = new MovieClip( data.getDrawable("maincoin"), 0.5f, 1f, data );
-        cha.y = stage.stageHeight - 150;
-        touchPointX = cha.x = stage.stageWidth / 2;
-        touchPointY = cha.y;
-        stage.addChild( cha );
+        maincoin = new Coin( data.getDrawable("maincoin"), 0.5f, 1f, data );
+        maincoin.y = stage.stageHeight - 150;
+        touchPointX = maincoin.x = stage.stageWidth / 2;
+        touchPointY = maincoin.y;
+        stage.addChild( maincoin );
 
         holder = getHolder();
         holder.addCallback( this );
@@ -142,7 +142,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MediaManager.stop();
+                StageMusicManager.stop();
                 SoundManager.playSound(3, 1);
                 ResultDialog resultDialog = new ResultDialog(getContext(), new CustumDialogClickListener() {
                     @Override
@@ -234,15 +234,15 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
     }
 
     public void setCoinLoc() {
-        cha.x +=  (touchPointX - cha.x);
-        cha.y += (touchPointY - cha.y);
+        maincoin.x +=  (touchPointX - maincoin.x);
+        maincoin.y += (touchPointY - maincoin.y);
     }
 
     public void lifecoin() {
         int speed,idx;
 
         if(Math.random() < cntforspeed/500) {
-            lifec = new MovieClip(data.getDrawable("lifecoin"),0.5f,1);
+            lifec = new Coin(data.getDrawable("lifecoin"),0.5f,1);
             lifec.y = 0;
             lifec.x = (int)(stage.stageWidth * Math.random());
             stage.addChild(lifec);
@@ -256,7 +256,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             speed = lifeSpeed.get(i);
             lifec.y += speed/2;
             lifeSpeed.set( i, (int)(10+(cntforspeed)) );
-            if( cha.anotherHitTestPoint( lifec.x, lifec.y ) ){
+            if( maincoin.anotherHitTestPoint( lifec.x, lifec.y ) ){
                 SoundManager.playSound(1,1);
                 idx = lifeArr.indexOf(lifec);
                 stage.removeChild(lifec);
@@ -279,7 +279,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
     public void diecoin() {
         int speed,idx;
         if(Math.random() < cntforspeed/500){
-            die = new MovieClip(data.getDrawable("dieCoin"),0.5f,1);
+            die = new Coin(data.getDrawable("dieCoin"),0.5f,1);
             die.y = 0;
             die.x = (int)(stage.stageWidth * Math.random());
             stage.addChild(die);
@@ -293,7 +293,7 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
             speed = dieSpeed.get(i);
             die.y += speed/2;
             dieSpeed.set( i, (int)(10+(cntforspeed)) );
-            if( cha.anotherHitTestPoint( die.x, die.y ) ){
+            if( maincoin.anotherHitTestPoint( die.x, die.y ) ){
 
                 SoundManager.playSound(1,1);
                 if(life<1) {
@@ -330,27 +330,27 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
         tf.text = "Stage : "+(int)stagecnt+" "+time + "초 Life : " + life+"개";
 
         if(Math.random() < cntforspeed/200) {
-            mon = new MovieClip( data.getDrawable("dropcoin"), 0.5f, 1 );
-            mon.y = 0;
-            mon.x = (int) (stage.stageWidth * Math.random());
-            stage.addChild( mon );
-            monArr.add( mon );
-            monSpeed.add( 0 );
-            mon = null;
+            dropcoin = new Coin( data.getDrawable("dropcoin"), 0.5f, 1 );
+            dropcoin.y = 0;
+            dropcoin.x = (int) (stage.stageWidth * Math.random());
+            stage.addChild( dropcoin );
+            dropArr.add( dropcoin );
+            dropSpeed.add( 0 );
+            dropcoin = null;
 
         }
 
-        for( i = 0; i < monArr.size(); ++ i ) {
-            mon = monArr.get( i );
-            speed = monSpeed.get( i );
-            mon.y += speed / 2;
-            monSpeed.set( i, (int)(10+(cntforspeed)) );
-            if( cha.hitTestPoint( mon.x, mon.y ) ) {
+        for( i = 0; i < dropArr.size(); ++ i ) {
+            dropcoin = dropArr.get( i );
+            speed = dropSpeed.get( i );
+            dropcoin.y += speed / 2;
+            dropSpeed.set( i, (int)(10+(cntforspeed)) );
+            if( maincoin.hitTestPoint( dropcoin.x, dropcoin.y ) ) {
                 SoundManager.playSound(1,1);
-                centerDistance = Math.abs((cha.x + (cha.getIntrinsicWidth()/2)) - (mon.x + (mon.getIntrinsicWidth()/2)));
+                centerDistance = Math.abs((maincoin.x + (maincoin.getIntrinsicWidth()/2)) - (dropcoin.x + (dropcoin.getIntrinsicWidth()/2)));
 
-                if(centerDistance >cha.getIntrinsicWidth()/2){
-                    cha.x = tempx;
+                if(centerDistance >maincoin.getIntrinsicWidth()/2){
+                    maincoin.x = tempx;
                     endFlag = true;
 
                     interruptThreads();
@@ -359,32 +359,32 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                 else {
                     if(stackArr.size() > 1) {
 
-                        cha.x = tempx;
+                        maincoin.x = tempx;
                         endFlag = true;
                         interruptThreads();
                         showStageClearDialog();
                     }
 
-                    stackCoin = new MovieClip(data.getDrawable("stackCoin"), 0.5f, 1);
-                    stackCoin.y = (stage.stageHeight - cha.getIntrinsicHeight()) + data.hitY;
-                    stackCoin.x = cha.x - (cha.x - mon.x);
-                    distance.add((mon.x - cha.x));
+                    stackCoin = new Coin(data.getDrawable("stackCoin"), 0.5f, 1);
+                    stackCoin.y = (stage.stageHeight - maincoin.getIntrinsicHeight()) + data.hitY;
+                    stackCoin.x = maincoin.x - (maincoin.x - dropcoin.x);
+                    distance.add((dropcoin.x - maincoin.x));
                     stackArr.add(stackCoin);
 
                     if (stackArr.size() > 1)
-                        cha.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
+                        maincoin.distance += distance.get(stackArr.size() - 1) - distance.get(stackArr.size() - 2);
 
                     stage.addChild(stackCoin);
 
-                    idx = monArr.indexOf(mon);
-                    stage.removeChild(mon);
-                    monArr.remove(idx);
-                    monSpeed.remove(idx);
+                    idx = dropArr.indexOf(dropcoin);
+                    stage.removeChild(dropcoin);
+                    dropArr.remove(idx);
+                    dropSpeed.remove(idx);
                     --i;
                     ++monCnt;
                 }
             }
-            if( mon.y > stage.stageHeight + mon.height ) {
+            if( dropcoin.y > stage.stageHeight + dropcoin.height ) {
                 SoundManager.playSound(0,1);
 
                 if(life < 2){
@@ -392,10 +392,10 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
                     showResultDialog();
                 }else {
                     life--;
-                    idx = monArr.indexOf(mon);
-                    stage.removeChild(mon);
-                    monArr.remove(idx);
-                    monSpeed.remove(idx);
+                    idx = dropArr.indexOf(dropcoin);
+                    stage.removeChild(dropcoin);
+                    dropArr.remove(idx);
+                    dropSpeed.remove(idx);
                     --i;
                 }
             }
@@ -403,8 +403,8 @@ public class NormalGameViewIntent extends SurfaceView implements Callback {
     }
     public void stacked() {
         for(int i = 0; i < stackArr.size(); i++){
-            stackArr.get(i).x = cha.x+ (distance.get(i));
-            stackArr.get(i).y = cha.y-(cha.height/8)-((i+1)*(cha.height/2));
+            stackArr.get(i).x = maincoin.x+ (distance.get(i));
+            stackArr.get(i).y = maincoin.y-(maincoin.height/8)-((i+1)*(maincoin.height/2));
         }
     }
 }

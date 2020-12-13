@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import java.util.ArrayList;
 
 public class Data {
-    int stackcnt = 0;
     Context context;
 
     ArrayList<String> nameArr;
@@ -17,14 +16,6 @@ public class Data {
 
     int hitY = 20;
     float stagecnt = 1;
-
-    public int getStackcnt () {
-        return this.stackcnt;
-    }
-
-    public void setStackcnt(int num) {
-        this.stackcnt = num;
-    }
 
     public Data(Context c){
         context = c;

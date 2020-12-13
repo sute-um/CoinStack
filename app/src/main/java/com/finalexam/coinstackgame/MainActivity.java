@@ -1,14 +1,9 @@
 package com.finalexam.coinstackgame;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -32,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        TitleMusicService.create(getApplicationContext());
+        TitleMusicManager.create(getApplicationContext());
         data = new Data(getApplicationContext());
     }
 
@@ -46,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if(System.currentTimeMillis() <= Backbtncnt+2000){
-            TitleMusicService.stop();
+            TitleMusicManager.stop();
             finishAffinity();
            super.onBackPressed();
         }
@@ -56,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        TitleMusicService.pause();
+        TitleMusicManager.pause();
     }
 
     @Override
     protected void onResume() {
 
         super.onResume();
-        TitleMusicService.start();
+        TitleMusicManager.start();
         setContentView(R.layout.activity_main);
         init();
         action();
@@ -93,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         onClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view){
-                stopService(new Intent(getApplicationContext(), TitleMusicService.class));
                 switch(view.getId()) {
                     case R.id.btn_mode1:
 

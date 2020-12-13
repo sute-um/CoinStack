@@ -3,7 +3,6 @@ package com.finalexam.coinstackgame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -15,8 +14,8 @@ public class NormalModeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MediaManager.create(getApplicationContext());
-        MediaManager.start();
+        StageMusicManager.create(getApplicationContext());
+        StageMusicManager.start();
         v = new NormalGameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -26,17 +25,17 @@ public class NormalModeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MediaManager.start();
+        StageMusicManager.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        MediaManager.pause();
+        StageMusicManager.pause();
     }
 
     public void goToMainScreen() {
-        MediaManager.stop();
+        StageMusicManager.stop();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -46,7 +45,7 @@ public class NormalModeActivity extends AppCompatActivity {
     }
 
     public void restart() {
-        MediaManager.start();
+        StageMusicManager.start();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), NormalModeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

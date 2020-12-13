@@ -2,15 +2,8 @@ package com.finalexam.coinstackgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 import static java.lang.Thread.sleep;
 
@@ -21,8 +14,8 @@ public class InfinityModeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MediaManager.create(getApplicationContext());
-        MediaManager.start();
+        StageMusicManager.create(getApplicationContext());
+        StageMusicManager.start();
         v = new GameView(this);
         setContentView(v);
         receiveThread = new receiveThread();
@@ -32,17 +25,17 @@ public class InfinityModeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        MediaManager.pause();
+        StageMusicManager.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        MediaManager.start();
+        StageMusicManager.start();
     }
 
     public void goToMainScreen() {
-        MediaManager.stop();
+        StageMusicManager.stop();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -52,7 +45,7 @@ public class InfinityModeActivity extends AppCompatActivity {
     }
 
     public void restart() {
-        MediaManager.stop();
+        StageMusicManager.stop();
         finishAffinity();
         Intent intent = new Intent(getApplicationContext(), InfinityModeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
