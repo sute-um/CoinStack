@@ -44,6 +44,7 @@ public class PauseDialog extends Dialog {
 
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
